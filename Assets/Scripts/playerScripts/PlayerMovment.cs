@@ -1,8 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using Unity.Netcode;
 
-public class PlayerMovment : MonoBehaviour
+
+// Network 
+public class PlayerMovment :  NetworkBehaviour
 {
     // variable
     [SerializeField] private float moveSpeed;
@@ -10,6 +14,8 @@ public class PlayerMovment : MonoBehaviour
     [SerializeField] private float runSpeed;
     [SerializeField] private float backSpeed;
     [SerializeField] private float sideSpeed;
+
+    private Transform playerTransform;
 
 
     private Vector3 moveDirection;
@@ -25,30 +31,39 @@ public class PlayerMovment : MonoBehaviour
     private bool isJumping;
 
     // animation
-    private bool walkForward;
-    private bool walkBack;
-    private bool left;
-    private bool right;
-    private bool run;
-    private bool idle;
-    private bool jump;
+    private bool walkForward = false;
+    private bool walkBack = false;
+    private bool left = false;
+    private bool right = false;
+    private bool run = false;
+    private bool idle = false;
+    private bool jump = false;
+    private bool sideWalk = false;
 
     // reference
     private CharacterController controller;
     private Animator anim;
-    private void Start()
+
+
+    // make character controller readable of every one
+    // awack function
+    private void Awake()
     {
-        // get component
+        // make character controller readable of every one
         controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
-        
     }
 
-    private void Update()
-    {
-        setkey();
-        Move();
+    // start function
 
+  
+ 
+
+    private void FixedUpdate()
+    {
+        if (!IsOwner) return;
+        InputPlayerState();
+        Move();
     }
 
     private void Move()
@@ -81,46 +96,50 @@ public class PlayerMovment : MonoBehaviour
             {   // is walk forward
                 Walk();
             }
+            
             if (walkBack && !run)
             {   // is walk back
-                
                 WalkBack();
             }
+
             if (left && !run)
             {   // is walk left
                 GoLeft();
-            }
+            } 
+            
             if (right && !run)
             {   // is walk right
                 GoRight();
             }
+
             if (run && walkForward)
             {   // is run
                 Run();
             }
+          
             if (idle)
             {   // is idle
                 Idle();
             }
             // is walk ba
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (jump )
             {   // jump
                 Jump();
 
             }
-
-            // chnge the direction when press the forward key and the left key
             
             moveDirection *= moveSpeed;
 
         }
 
-       
+        // debug the last position and the last rotation
 
-        controller.Move(moveDirection * Time.deltaTime);
-        // gravity apply to the player
+        controller.Move(moveDirection * Time.deltaTime); // move the player
+        // // gravity apply to the player
         velocity.y += gravity * Time.deltaTime; // calculate gravity
         controller.Move(velocity * Time.deltaTime);
+       
+
 
         // if isJumping = true and the player is falling
         if ((isJumping && velocity.y < 0) || !isGrounded)
@@ -130,7 +149,7 @@ public class PlayerMovment : MonoBehaviour
     }
 
 
-     private void Walk()
+    private void Walk()
     {
         // move
         moveSpeed = walkSpeed;
@@ -144,13 +163,13 @@ public class PlayerMovment : MonoBehaviour
 
     private void Run()
     {
-        // move
+        // move if w is pressed
         moveSpeed = runSpeed;
         anim.SetFloat("SpeedX", 0f);
         anim.SetFloat("SpeedZ", 2.0f, 0.1f, Time.deltaTime);
         anim.SetBool("isWalking", false);
         anim.SetBool("isFalling", false);
-
+    
     }
 
     private void Idle()
@@ -169,7 +188,7 @@ public class PlayerMovment : MonoBehaviour
         isJumping = true;
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         anim.SetBool("isJumping", jump);
-
+        anim.SetBool("isWalking", false);
     }
 
     private void fall()
@@ -218,8 +237,19 @@ public class PlayerMovment : MonoBehaviour
 
     }
 
+    private void GoSideWay() {
+        // rotate the player a little bit smoothly and rotate back otherwise
+        Quaternion newRotation = Quaternion.Euler(0,180, 0);
+        if (sideWalk && walkForward){
+            transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * 5f);
+            // and walk forward
+        } 
 
-    private void setkey()
+
+    }
+
+
+    private void InputPlayerState()
     {
         // set key
         walkForward = Input.GetKey(KeyCode.W);
@@ -227,10 +257,10 @@ public class PlayerMovment : MonoBehaviour
         left = Input.GetKey(KeyCode.A);
         right = Input.GetKey(KeyCode.D);
         run = Input.GetKey(KeyCode.LeftShift);
+        sideWalk = (left && walkForward) || (right && walkForward) || (left && walkBack) || (right && walkBack); 
         jump = Input.GetKey(KeyCode.Space);
         idle = !walkForward && !walkBack && !left && !right && !run && !jump;
-
     }
-   
+
 }
 
