@@ -21,6 +21,8 @@ public class PlayerMovment :  NetworkBehaviour
     private Vector3 moveDirection;
     private Vector3 velocity; // for gravity
 
+    private Vector2 animationDirection;
+
     [SerializeField] private float gravity;
     [SerializeField] private float groundDistance; // means the distance between the ground and the player
     [SerializeField] private LayerMask groundMask; //to check if the player is on the ground or not
@@ -33,12 +35,14 @@ public class PlayerMovment :  NetworkBehaviour
     // animation
     private bool walkForward = false;
     private bool walkBack = false;
+    private bool run = false;
+    private bool jump = false;
+
     private bool left = false;
     private bool right = false;
-    private bool run = false;
+
     private bool idle = false;
-    private bool jump = false;
-    private bool sideWalk = false;
+
 
     // reference
     private CharacterController controller;
@@ -55,6 +59,12 @@ public class PlayerMovment :  NetworkBehaviour
     }
 
     // start function
+
+    private void Start()
+    {
+        // set animation variables bool to false
+        idle = true;
+    }
 
   
  
@@ -80,186 +90,140 @@ public class PlayerMovment :  NetworkBehaviour
         {   // if the player is on the ground
             velocity.y = -2f;
         }
-
-
         // get input
         float move_z = Input.GetAxisRaw("Vertical");
         float move_x = Input.GetAxisRaw("Horizontal");
         // calculate move direction
         moveDirection = new Vector3(move_x, 0, move_z);
         moveDirection = transform.TransformDirection(moveDirection); // to make the player move in the direction of the camera
+        
+        // set SpeedX and SpeedZ in the animator movex and movez smooth the transition between the animation
+        // if the player is running in forward direction
+        if (idle)
+        {
+            Idle();    
+        }
+        if (walkForward) {
+            WalkForward();
+        }
+        if (run) {
+            Run();
+        }
+        if (walkBack) {
+            WalkBack();
+        } 
+        
+        if (jump && isGrounded) {
 
-        if (isGrounded)
-        {   // if the player is on the ground and move
-            // is walking 
-            if (walkForward && !run)
-            {   // is walk forward
-                Walk();
-            }
-            
-            if (walkBack && !run)
-            {   // is walk back
-                WalkBack();
-            }
-
-            if (left && !run)
-            {   // is walk left
-                GoLeft();
-            } 
-            
-            if (right && !run)
-            {   // is walk right
-                GoRight();
-            }
-
-            if (run && walkForward)
-            {   // is run
-                Run();
-            }
-          
-            if (idle)
-            {   // is idle
-                Idle();
-            }
-            // is walk ba
-            if (jump )
-            {   // jump
-                Jump();
-
-            }
-            
-            moveDirection *= moveSpeed;
-
+            Jump();
         }
 
+
+         moveDirection *= moveSpeed; // move the player
         // debug the last position and the last rotation
 
         controller.Move(moveDirection * Time.deltaTime); // move the player
         // // gravity apply to the player
         velocity.y += gravity * Time.deltaTime; // calculate gravity
         controller.Move(velocity * Time.deltaTime);
-       
-
-
-        // if isJumping = true and the player is falling
-        if ((isJumping && velocity.y < 0) || !isGrounded)
+        if ((isJumping && velocity.y < 0) || !isGrounded) 
         {
-            fall();
+            Fall();
         }
     }
 
 
-    private void Walk()
+    private void WalkForward()
     {
         // move
         moveSpeed = walkSpeed;
-        anim.SetFloat("SpeedX", 0f);
-        anim.SetFloat("SpeedZ", 0.5f, 0.1f, Time.deltaTime);
-        // is walking
-        anim.SetBool("isWalking", walkForward);
-        // is falling = false
-        anim.SetBool("isFalling", false);
+        //anim.SetFloat("SpeedX", 0);
+        anim.SetFloat("SpeedZ", 0.5f , 0.1f, Time.deltaTime);
+        // is ground
+        anim.SetBool("isGrounded", true);
+       
     }
+
+    private void WalkBack()
+    {
+        // go back
+        moveSpeed = walkSpeed/2;
+        // is ground
+        anim.SetBool("isGrounded", true);
+
+        if (left) {
+            anim.SetFloat("SpeedX", -0.5f, 0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", 0);
+        }
+        if (right) {
+            anim.SetFloat("SpeedX", 0.5f, 0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", 0);
+        }
+
+        if (!left && !right) {
+            anim.SetFloat("SpeedX", 0);
+            anim.SetFloat("SpeedZ", -0.5f, 0.1f, Time.deltaTime);
+        }
+
+    }
+       
+      
 
     private void Run()
     {
         // move if w is pressed
+        
         moveSpeed = runSpeed;
-        anim.SetFloat("SpeedX", 0f);
-        anim.SetFloat("SpeedZ", 2.0f, 0.1f, Time.deltaTime);
-        anim.SetBool("isWalking", false);
-        anim.SetBool("isFalling", false);
+        anim.SetFloat("SpeedX", 0);
+        // increase the speed of the player to 2.0f smooth 
+        anim.SetFloat("SpeedZ", 2.0f , 0.03f, Time.deltaTime);
+        // is ground
+        anim.SetBool("isGrounded", true);
     
-    }
-
-    private void Idle()
-    {
-       
-        anim.SetFloat("SpeedX", 0f);
-        anim.SetFloat("SpeedZ", 0f);
-        anim.SetBool("isWalking", idle);
-        anim.SetBool("isFalling", false);
-
     }
 
     private void Jump()
     {
         // jump
         isJumping = true;
-        velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity/2);
         anim.SetBool("isJumping", jump);
-        anim.SetBool("isWalking", false);
+        anim.SetBool("isFalling", false);
+        anim.SetBool("isGrounded", false);
     }
 
-    private void fall()
+    private void Fall()
     {
         // fall
+        isJumping = false;
+        isGrounded = false;
         anim.SetBool("isFalling", true);
         anim.SetBool("isJumping", false);
-        // is moving = false
-        anim.SetBool("isWalking", false);
+        anim.SetBool("isGrounded", false);
+
     }
 
-    private void WalkBack()
+    private void Idle()
     {
-        // go back
-        moveSpeed = backSpeed;
-        anim.SetFloat("SpeedX", 0f);
-        anim.SetFloat("SpeedZ", -0.5f, 0.1f, Time.deltaTime);
-        // is walking
-        anim.SetBool("isWalking", walkBack);
-        // is falling = false
-        anim.SetBool("isFalling", false);
-
+        // idle
+        anim.SetFloat("SpeedX", 0 );
+        anim.SetFloat("SpeedZ", 0 );
+        // is ground
+        anim.SetBool("isGrounded", true);
     }
-    private void GoLeft()
-    {
-        // go left
-        moveSpeed = sideSpeed;
-        anim.SetFloat("SpeedX", -0.5f, 0.1f, Time.deltaTime);
-        anim.SetFloat("SpeedZ", 0f);
-        // is walking
-        anim.SetBool("isWalking", left);
-        anim.SetBool("isFalling", false);
-
-    }
-
-    private void GoRight()
-    {
-        // go right
-        moveSpeed = sideSpeed;
-        anim.SetFloat("SpeedX", 0.5f, 0.1f, Time.deltaTime);
-        anim.SetFloat("SpeedZ", 0f);
-        // is walking
-        anim.SetBool("isWalking", right);
-        // is falling = false
-        anim.SetBool("isFalling", false);
-
-    }
-
-    private void GoSideWay() {
-        // rotate the player a little bit smoothly and rotate back otherwise
-        Quaternion newRotation = Quaternion.Euler(0,180, 0);
-        if (sideWalk && walkForward){
-            transform.rotation = Quaternion.Slerp(transform.rotation, newRotation, Time.deltaTime * 5f);
-            // and walk forward
-        } 
-
-
-    }
-
 
     private void InputPlayerState()
     {
-        // set key
-        walkForward = Input.GetKey(KeyCode.W);
-        walkBack = Input.GetKey(KeyCode.S);
-        left = Input.GetKey(KeyCode.A);
-        right = Input.GetKey(KeyCode.D);
-        run = Input.GetKey(KeyCode.LeftShift);
-        sideWalk = (left && walkForward) || (right && walkForward) || (left && walkBack) || (right && walkBack); 
-        jump = Input.GetKey(KeyCode.Space);
-        idle = !walkForward && !walkBack && !left && !right && !run && !jump;
+        walkForward = Input.GetKey(KeyCode.W) 
+        || (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.W)) 
+        || (Input.GetKey(KeyCode.A) && Input.GetKey(KeyCode.W));
+        
+        run = Input.GetKey(KeyCode.LeftShift) && walkForward;
+        left = Input.GetKey(KeyCode.A) && !run;
+        right = Input.GetKey(KeyCode.D) && !run;
+        walkBack = Input.GetKey(KeyCode.S) || left || right;
+        jump =  Input.GetKey(KeyCode.Space) && !walkBack;
+        idle = !run && !walkBack && !jump && isGrounded && !walkForward;
     }
 
 }
