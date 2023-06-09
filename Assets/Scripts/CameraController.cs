@@ -13,6 +13,9 @@ public class CameraController : NetworkBehaviour
 
     // reference
     private Transform parent;
+    private CharacterController characterController;
+
+    private Vector3 moveDirection;
 
     public Camera playerCamera;
 
@@ -21,6 +24,8 @@ public class CameraController : NetworkBehaviour
     private void Awake()
     {
         playerCamera = GetComponent<Camera>();
+        parent = transform.parent; // get the parent of the camera which is the player   
+
     }
 
     private void Start()
@@ -29,24 +34,24 @@ public class CameraController : NetworkBehaviour
           if (!IsOwner)
         {
             playerCamera.enabled = false;
-        }
-        parent = transform.parent; // get the parent of the camera which is the player     
+        } 
         Cursor.lockState = CursorLockMode.Locked; // lock the cursor in the center of the screen
     }
 
     private void Update()
     { 
         Rotate();
+     
     }
 
     private void Rotate()
     {
         // get input
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-        parent.Rotate(Vector3.up * mouseX); // rotate the parent of the camera which is the player
+
+        // rotate the parent
+        parent.Rotate(Vector3.up * mouseX);
 
     }
-
 
 }
