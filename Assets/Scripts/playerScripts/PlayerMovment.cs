@@ -30,8 +30,6 @@ public class PlayerMovment :  NetworkBehaviour
 
     [SerializeField] private float jumpHeight;
 
-    private bool isJumping;
-
     // animation
     private bool walkForward = false;
     private bool walkBack = false;
@@ -82,9 +80,12 @@ public class PlayerMovment :  NetworkBehaviour
         // checkSphere(position, radius, layerMask) -> return true if the sphere overlaps any collider that is on the layerMask/
         // if the palayer is on the ground = true
         isGrounded = Physics.CheckSphere(transform.position, groundDistance, groundMask);
-        anim.SetBool("isGrounded", isGrounded);
-        anim.SetBool("isFalling", !isGrounded);
-        anim.SetBool("isJumping", !isGrounded);
+        // anim.SetBool("isGrounded", isGrounded);
+        // anim.SetBool("isFalling", !isGrounded);
+        // anim.SetBool("isJumping", !isGrounded);
+        
+        // if the player is on the ground
+    
 
         if (isGrounded && velocity.y < 0)
         {   // if the player is on the ground
@@ -112,12 +113,11 @@ public class PlayerMovment :  NetworkBehaviour
         if (walkBack) {
             WalkBack();
         } 
-        
+
         if (jump && isGrounded) {
 
             Jump();
         }
-
 
          moveDirection *= moveSpeed; // move the player
         // debug the last position and the last rotation
@@ -126,10 +126,12 @@ public class PlayerMovment :  NetworkBehaviour
         // // gravity apply to the player
         velocity.y += gravity * Time.deltaTime; // calculate gravity
         controller.Move(velocity * Time.deltaTime);
-        if ((isJumping && velocity.y < 0) || !isGrounded) 
+        if ((jump && velocity.y < 0) || !isGrounded) 
         {
             Fall();
         }
+
+        // is landing if the distance between the player and the ground is less than 
     }
 
 
@@ -140,7 +142,8 @@ public class PlayerMovment :  NetworkBehaviour
         //anim.SetFloat("SpeedX", 0);
         anim.SetFloat("SpeedZ", 0.5f , 0.1f, Time.deltaTime);
         // is ground
-        anim.SetBool("isGrounded", true);
+        anim.SetBool("isGrounded", isGrounded);
+
        
     }
 
@@ -149,7 +152,7 @@ public class PlayerMovment :  NetworkBehaviour
         // go back
         moveSpeed = walkSpeed/2;
         // is ground
-        anim.SetBool("isGrounded", true);
+        anim.SetBool("isGrounded", isGrounded);
 
         if (left) {
             anim.SetFloat("SpeedX", -0.5f, 0.1f, Time.deltaTime);
@@ -178,28 +181,28 @@ public class PlayerMovment :  NetworkBehaviour
         // increase the speed of the player to 2.0f smooth 
         anim.SetFloat("SpeedZ", 2.0f , 0.03f, Time.deltaTime);
         // is ground
-        anim.SetBool("isGrounded", true);
+        anim.SetBool("isGrounded", isGrounded);
+        anim.SetBool("isFalling", false);
+        anim.SetBool("isJumping", false);
+
     
     }
 
     private void Jump()
     {
-        // jump
-        isJumping = true;
+       
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity/2);
         anim.SetBool("isJumping", jump);
         anim.SetBool("isFalling", false);
-        anim.SetBool("isGrounded", false);
+        anim.SetBool("isGrounded", isGrounded);
     }
 
     private void Fall()
     {
         // fall
-        isJumping = false;
-        isGrounded = false;
         anim.SetBool("isFalling", true);
         anim.SetBool("isJumping", false);
-        anim.SetBool("isGrounded", false);
+        anim.SetBool("isGrounded", isGrounded);
 
     }
 
@@ -209,7 +212,12 @@ public class PlayerMovment :  NetworkBehaviour
         anim.SetFloat("SpeedX", 0 );
         anim.SetFloat("SpeedZ", 0 );
         // is ground
-        anim.SetBool("isGrounded", true);
+        anim.SetBool("isGrounded", isGrounded);
+        // is falling and jumping false
+        anim.SetBool("isFalling", false);
+        anim.SetBool("isJumping", false);
+
+
     }
 
     private void InputPlayerState()
@@ -217,13 +225,13 @@ public class PlayerMovment :  NetworkBehaviour
         walkForward = Input.GetKey(KeyCode.W) 
         || (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.W)) 
         || (Input.GetKey(KeyCode.A) && Input.GetKey(KeyCode.W));
-        
         run = Input.GetKey(KeyCode.LeftShift) && walkForward;
         left = Input.GetKey(KeyCode.A) && !run;
         right = Input.GetKey(KeyCode.D) && !run;
         walkBack = Input.GetKey(KeyCode.S) || left || right;
-        jump =  Input.GetKey(KeyCode.Space) && !walkBack;
         idle = !run && !walkBack && !jump && isGrounded && !walkForward;
+        jump =  (Input.GetKey(KeyCode.Space) && run) || (Input.GetKey(KeyCode.Space) && walkForward) || (Input.GetKey(KeyCode.Space) && idle);
+        
     }
 
 }

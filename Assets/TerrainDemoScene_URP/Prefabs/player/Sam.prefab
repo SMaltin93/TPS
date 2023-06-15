@@ -1070,7 +1070,7 @@ MonoBehaviour:
   backSpeed: 2
   sideSpeed: 2
   gravity: -14.6
-  groundDistance: 0.2
+  groundDistance: 0.4
   groundMask:
     serializedVersion: 2
     m_Bits: 512
@@ -2675,15 +2675,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1068236452351804223, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.039
+      value: -0.01
       objectReference: {fileID: 0}
     - target: {fileID: 1068236452351804223, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.8699998
+      value: 2.06
       objectReference: {fileID: 0}
     - target: {fileID: 1068236452351804223, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.51
+      value: -3.78
       objectReference: {fileID: 0}
     - target: {fileID: 1068236452351804223, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_LocalRotation.w
