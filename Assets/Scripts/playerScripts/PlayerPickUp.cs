@@ -7,89 +7,87 @@ using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 
 public class PlayerPickUp : NetworkBehaviour
 {
-    [SerializeField] private Transform findWeapon;
+
     [SerializeField] private LayerMask pickUpLayer;
-    [SerializeField] private Transform weaponHolder;
 
-    public static bool isGrabbed;
-
+    // // Reference to the weapon holder
+    private Transform weaponHolder;
+    // // Reference to the find weapon point
+    private Transform findWeapon;
+    public static bool isGrabbed = false;
+    // player id
     private GameObject weapon;
+    
 
-    private void Awake()
+    void Start()
     {
-        isGrabbed = false;
+        weaponHolder = transform.Find("weaponHolder");
+        findWeapon = transform.Find("findWeapon");
         weapon = null;
     }
+   
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (!IsOwner) return;
-
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKey(KeyCode.E) && weapon == null)
         {
-            if (!isGrabbed && weapon == null)
-            {
-                RequiresPickupServerRpc();
-            }
+            //StartCoroutine(ToggleLagIndicator());
+            PickUpWeapon();
         }
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            if (isGrabbed && weapon != null)
-            {
-                DropWeapon();
-            }
-        }
-    }
-
-    private void DropWeapon()
-    {
-        weapon.transform.SetParent(null);
-        weapon.GetComponent<ObjectGrabb>().Drop(this.weaponHolder);
-        isGrabbed = false;
-        weapon = null;
     }
 
     private void PickUpWeapon()
     {
-        RaycastHit hit;
         float pickUpRange = 4f;
-        if (Physics.Raycast(findWeapon.position, findWeapon.forward, out hit, pickUpRange))
+        if (Physics.Raycast(findWeapon.position, findWeapon.forward, out RaycastHit hit, pickUpRange))
         {
-            if (hit.transform.TryGetComponent(out ObjectGrabb objectGrabb))
+            Debug.Log("tag: " + hit.collider.gameObject.tag);
+            // findgameobject with tag weapon
+             if (hit.transform.tag == "Weapon")
             {
                 weapon = hit.transform.gameObject;
-                objectGrabb.Grab(this.weaponHolder);
-                isGrabbed = true;
-            }
+                RequestPickUpWeaponServerRpc(weapon.GetComponent<NetworkObject>().NetworkObjectId);
+               // pickUpWeaponClientRpc(weapon.GetComponent<NetworkObject>().NetworkObjectId);
+
+            } 
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void RequiresPickupServerRpc(ServerRpcParams serverRpcParams = default)
+    private void Grab(GameObject weapon) {
+        isGrabbed = true;
+        // weapon regidbody
+        Rigidbody rb = weapon.GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.isKinematic = true;
+        // set the parent of the objectGrabbPoint
+        weapon.transform.parent = transform;
+        // set the objectGrabbPoint to the grabbPointPosition
+        weapon.transform.position = weaponHolder.position;
+        // set the rotation of the objectGrabbPoint
+        weapon.transform.rotation = weaponHolder.rotation;
+        // make the parent of the weapon the owner of the weapon
+    }
+
+    [ServerRpc]
+    private void RequestPickUpWeaponServerRpc(ulong weaponNetId)
     {
-        ExecutePickupClientRpc();
-        ExecuteReparentServerRpc(serverRpcParams);
+        var weaponObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[weaponNetId].gameObject;
+        weaponObj.GetComponent<NetworkObject>().ChangeOwnership(NetworkManager.Singleton.LocalClientId);
+        // Now the server will handle reparenting the object
+        Grab(weaponObj);
+        pickUpWeaponClientRpc(weaponNetId);
+    
     }
 
     [ClientRpc]
-    private void ExecutePickupClientRpc()
-    {
-        PickUpWeapon();
+    private void pickUpWeaponClientRpc (ulong weaponNetId)
+    {   
+        var weaponObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[weaponNetId].gameObject;
+        if (weaponObj == null) return;
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void ExecuteReparentServerRpc(ServerRpcParams serverRpcParams = default)
-    {
-        ReparentWeapon(serverRpcParams.Receive.SenderClientId);
-    }
 
-    private void ReparentWeapon(ulong clientId)
-    {
-        if (weapon != null && weapon.TryGetComponent<NetworkObject>(out var networkObject))
-        {
-            networkObject.ChangeOwnership(clientId);
-            weapon.transform.SetParent(this.transform);
-        }
-    }
+
+   
 }

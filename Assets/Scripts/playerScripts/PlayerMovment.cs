@@ -21,7 +21,6 @@ public class PlayerMovment :  NetworkBehaviour
     private Vector3 moveDirection;
     private Vector3 velocity; // for gravity
 
-    private Vector2 animationDirection;
 
     [SerializeField] private float gravity;
     [SerializeField] private float groundDistance; // means the distance between the ground and the player
@@ -35,10 +34,8 @@ public class PlayerMovment :  NetworkBehaviour
     private bool walkBack = false;
     private bool run = false;
     private bool jump = false;
-
     private bool left = false;
     private bool right = false;
-
     private bool idle = false;
 
 
@@ -54,20 +51,11 @@ public class PlayerMovment :  NetworkBehaviour
         // make character controller readable of every one
         controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
-    }
-
-    // start function
-
-    private void Start()
-    {
-        // set animation variables bool to false
         idle = true;
     }
 
-  
- 
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (!IsOwner) return;
         InputPlayerState();
@@ -76,16 +64,9 @@ public class PlayerMovment :  NetworkBehaviour
 
     private void Move()
     {
-        // check ground
         // checkSphere(position, radius, layerMask) -> return true if the sphere overlaps any collider that is on the layerMask/
         // if the palayer is on the ground = true
         isGrounded = Physics.CheckSphere(transform.position, groundDistance, groundMask);
-        // anim.SetBool("isGrounded", isGrounded);
-        // anim.SetBool("isFalling", !isGrounded);
-        // anim.SetBool("isJumping", !isGrounded);
-        
-        // if the player is on the ground
-    
 
         if (isGrounded && velocity.y < 0)
         {   // if the player is on the ground
@@ -184,13 +165,10 @@ public class PlayerMovment :  NetworkBehaviour
         anim.SetBool("isGrounded", isGrounded);
         anim.SetBool("isFalling", false);
         anim.SetBool("isJumping", false);
-
-    
     }
 
     private void Jump()
-    {
-       
+    { 
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity/2);
         anim.SetBool("isJumping", jump);
         anim.SetBool("isFalling", false);
@@ -203,7 +181,6 @@ public class PlayerMovment :  NetworkBehaviour
         anim.SetBool("isFalling", true);
         anim.SetBool("isJumping", false);
         anim.SetBool("isGrounded", isGrounded);
-
     }
 
     private void Idle()
@@ -216,7 +193,6 @@ public class PlayerMovment :  NetworkBehaviour
         // is falling and jumping false
         anim.SetBool("isFalling", false);
         anim.SetBool("isJumping", false);
-
 
     }
 
