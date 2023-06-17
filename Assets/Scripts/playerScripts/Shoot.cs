@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class Shoot : NetworkBehaviour
+public class Shoot : MonoBehaviour
 {
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float bulletSpeed;
@@ -11,10 +11,10 @@ public class Shoot : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner) return;
-        if (Input.GetMouseButtonDown(0) && PlayerPickUp.isGrabbed) 
+        //if (!IsOwner) return;
+        if (Input.GetMouseButtonDown(0)) 
         {
-            RequiresFireServerRpc();
+            //Fire();
         }
     }
 
@@ -23,17 +23,5 @@ public class Shoot : NetworkBehaviour
         GameObject bullet =  Instantiate(bulletPrefab, transform.position, transform.rotation);
         bullet.GetComponent<Rigidbody>().velocity = transform.forward * bulletSpeed;
         Destroy(bullet, bulletDistance);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void RequiresFireServerRpc(ServerRpcParams serverRpcParams = default)
-    {
-        ExecuteFireClientRpc();
-    }
-
-    [ClientRpc]
-    private void ExecuteFireClientRpc()
-    {
-        Fire();
     }
 }

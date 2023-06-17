@@ -17,15 +17,20 @@ public class ObjectGrabb : NetworkBehaviour
         rb = GetComponent<Rigidbody>();  
     }
 
-    public void Grab(Transform objectGrabbPoint)
+    public void Grab(Vector3 grabbPointPosition, Quaternion grabbPointRotation, Transform parent)
     {
         // set rigidbogy to parent of the objectGrabbPoint 
        // disable gravity
+
         rb.useGravity = false;
         rb.isKinematic = true;
-        this.objectGrabbPoint = objectGrabbPoint;
-        // make the weapon rotation the same as the objectGrabbPoint
-        transform.rotation = objectGrabbPoint.rotation;
+        // set the objectGrabbPoint to the grabbPointPosition
+        transform.position = grabbPointPosition;
+        // set the rotation of the objectGrabbPoint
+        transform.rotation = grabbPointRotation;
+        // set the parent of the objectGrabbPoint
+        //transform.parent = parent;
+
     }
 
     // drop the weapon
@@ -48,7 +53,6 @@ public class ObjectGrabb : NetworkBehaviour
     private void FixedUpdate()
     {
         // if the object is grabbed, it will follow the objectGrabbPoint
-        if (!IsOwner) return;
         if (objectGrabbPoint != null)
         {
             rb.MovePosition(objectGrabbPoint.position);

@@ -21,27 +21,31 @@ public class CameraController : NetworkBehaviour
 
     // awack function
 
-    private void Awake()
+      private void Awake()
     {
         playerCamera = GetComponent<Camera>();
-        parent = transform.parent; // get the parent of the camera which is the player   
-
+        parent = transform.parent;  
     }
 
     private void Start()
     {   
-        // get component
-          if (!IsOwner)
+        if(IsLocalPlayer)
         {
-            playerCamera.enabled = false;
-        } 
-        Cursor.lockState = CursorLockMode.Locked; // lock the cursor in the center of the screen
+            Cursor.lockState = CursorLockMode.Locked;
+            playerCamera.enabled = true;  // Enable camera for local player
+        }
+        else
+        {
+            playerCamera.enabled = false;  // Disable camera for other players
+        }
     }
 
     private void Update()
     { 
-        Rotate();
-     
+        if(IsLocalPlayer)
+        {
+            Rotate();
+        }
     }
 
     private void Rotate()
