@@ -1,0 +1,99 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Unity.Netcode;
+
+public class PlayerShoot : NetworkBehaviour
+{
+    [SerializeField] private NetworkObject bulletPrefab;
+    [SerializeField] private float bulletSpeed;
+    [SerializeField] private float bulletDistance;
+
+    // reference to the shootingpoint that is a child of the weapon
+    private Transform shootingPoint;
+
+    // reference to the particle system
+    private ParticleSystem muzzleFlash;
+
+    // start it with null 
+    private void Awake()
+    {
+        shootingPoint = null;
+        muzzleFlash = null;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+       if (shootingPoint == null)
+        {
+            foreach (Transform child in transform)
+            {
+                if (child.tag == "Weapon")
+                {
+                    shootingPoint = child.Find("sniperBody").Find("shootingPoint");
+                    // shootingPoint has particle system as child
+                    muzzleFlash = shootingPoint.GetComponentInChildren<ParticleSystem>();
+                    break;  // Stop the loop as we found the shooting point
+                }
+            }
+        }
+
+        if (Input.GetMouseButtonDown(0) && shootingPoint != null && IsLocalPlayer)
+        {
+            FireServerRpc();
+            // start muzzle flash
+            // start muzzle flash on local player only
+            if (IsLocalPlayer)
+            {
+                muzzleFlash.Play();
+            }
+        }
+    }
+
+    public void Fire() 
+    {
+        NetworkObject bullet = Instantiate(bulletPrefab, shootingPoint.position, shootingPoint.rotation);
+        bullet.Spawn();
+        bullet.GetComponent<Rigidbody>().velocity = shootingPoint.forward * bulletSpeed;
+        //StartCoroutine(DestroyBulletAfterTime(bullet));
+
+    }
+
+    
+    [ServerRpc]
+    public void FireServerRpc(ServerRpcParams rpcParams = default)
+    {
+        Debug.Log("FireServerRpc");
+        // Instantiate and spawn the bullet on the server
+        NetworkObject bullet = Instantiate(bulletPrefab, shootingPoint.position, shootingPoint.rotation);
+        bullet.GetComponent<Rigidbody>().velocity = shootingPoint.forward * bulletSpeed;
+        bullet.Spawn();
+        //StartCoroutine(DestroyBulletAfterTime(bullet));
+        FireClientRpc();
+    }
+
+    [ClientRpc]
+    public void FireClientRpc()
+    {
+       
+    }
+
+    IEnumerator DestroyBulletAfterTime(NetworkObject bullet)
+    {
+        yield return new WaitForSeconds(bulletDistance);
+        RequestDespawnServerRpc(bullet.NetworkObjectId);
+    }
+
+   [ServerRpc]
+    public void RequestDespawnServerRpc(ulong networkObjectId, ServerRpcParams rpcParams = default)
+    {
+        NetworkObject networkObject;
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(networkObjectId, out networkObject))
+        {
+            networkObject.Despawn(true);
+        }
+    }
+
+
+}
