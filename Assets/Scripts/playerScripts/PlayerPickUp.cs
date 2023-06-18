@@ -21,7 +21,6 @@ public class PlayerPickUp : NetworkBehaviour
 
     void Start()
     {
-        weaponHolder = transform.Find("weaponHolder");
         findWeapon = transform.Find("findWeapon");
         weapon = null;
     }
@@ -63,10 +62,13 @@ public class PlayerPickUp : NetworkBehaviour
         // set the parent of the objectGrabbPoint
         weapon.transform.parent = transform;
         // set the objectGrabbPoint to the grabbPointPosition
-        weapon.transform.position = weaponHolder.position;
-        // set the rotation of the objectGrabbPoint
-        weapon.transform.rotation = weaponHolder.rotation;
-        // make the parent of the weapon the owner of the weapon
+        // set x to 0.13, y = 1.534 , z =  0.472, rotate in y -90 
+        weapon.transform.localPosition = new Vector3(0.13f, 1.534f, 0.472f);
+        weapon.transform.localRotation = Quaternion.Euler(0, -90, 0);
+        // weapon.transform.position = weaponHolder.position;
+        // // set the rotation of the objectGrabbPoint
+        // weapon.transform.rotation = weaponHolder.rotation;
+        // // make the parent of the weapon the owner of the weapon
     }
 
     [ServerRpc]
