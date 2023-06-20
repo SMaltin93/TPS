@@ -16,10 +16,10 @@ public class BulletState : NetworkBehaviour
     private void OnCollisionEnter(Collision other)
     {
         // destroy the bullet if it collides with something 
-        Debug.Log("Bullet collided with " + other.gameObject.name);
-        if (IsLocalPlayer) {
-            RequestDespawnServerRpc(NetworkObject.NetworkObjectId);
-        }
+       // if (IsLocalPlayer) {
+          Destroy(this.gameObject);
+          RequestDespawnServerRpc(NetworkObject.NetworkObjectId);
+        //}
     }
 
     [ServerRpc]
@@ -30,5 +30,11 @@ public class BulletState : NetworkBehaviour
         {
             networkObject.Despawn(true);
         }
+    }
+
+    [ClientRpc]
+    public void FireClientRpc()
+    {
+        Debug.Log("Bullet collided with " + gameObject.name);
     }
 }

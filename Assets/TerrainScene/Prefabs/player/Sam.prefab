@@ -938,6 +938,7 @@ GameObject:
   - component: {fileID: 1742896634}
   - component: {fileID: 8379472797057278237}
   - component: {fileID: -7041318398569348697}
+  - component: {fileID: 3203419314263579980}
   m_Layer: 0
   m_Name: Sam
   m_TagString: Untagged
@@ -1116,9 +1117,64 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88c39d0ee7f02d046ba5ad816de711ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletPrefab: {fileID: 5805551800961843827, guid: cf70f580d72f66943bbd135cfa8c17f3, type: 3}
+  bulletPrefab: {fileID: 7766542696213635802, guid: cf70f580d72f66943bbd135cfa8c17f3, type: 3}
   bulletSpeed: 150
   bulletDistance: 5
+--- !u!114 &3203419314263579980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3141531704960836452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeda7bfbf984f2a4da5ab4b8967b115d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Weight: 0.848
+  m_Data:
+    m_Root: {fileID: 4305806589766636200}
+    m_Mid: {fileID: 2786644355896112872}
+    m_Tip: {fileID: 3143714755166612419}
+    m_Target: {fileID: 0}
+    m_Hint: {fileID: 5371675068083138909}
+    m_TargetPositionWeight: 1
+    m_TargetRotationWeight: 1
+    m_HintWeight: 1
+    m_MaintainTargetPositionOffset: 0
+    m_MaintainTargetRotationOffset: 0
+--- !u!1 &3270980138958066026
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5371675068083138909}
+  m_Layer: 0
+  m_Name: hint_IK
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5371675068083138909
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3270980138958066026}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.16, y: 0.382, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4305806589766636200}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3352015264314317138
 GameObject:
   m_ObjectHideFlags: 0
@@ -2510,6 +2566,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2786644355896112872}
+  - {fileID: 5371675068083138909}
   m_Father: {fileID: 1868798472596477449}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

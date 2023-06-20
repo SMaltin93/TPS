@@ -5,7 +5,7 @@ using Unity.Netcode;
 
 public class PlayerShoot : NetworkBehaviour
 {
-    [SerializeField] private NetworkObject bulletPrefab;
+    [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float bulletSpeed;
     [SerializeField] private float bulletDistance;
 
@@ -31,7 +31,7 @@ public class PlayerShoot : NetworkBehaviour
             {
                 if (child.tag == "Weapon")
                 {
-                    shootingPoint = child.Find("sniperBody").Find("shootingPoint");
+                    shootingPoint = child.Find("shootingPoint");
                     // shootingPoint has particle system as child
                     muzzleFlash = shootingPoint.GetComponentInChildren<ParticleSystem>();
                     break;  // Stop the loop as we found the shooting point
@@ -44,21 +44,20 @@ public class PlayerShoot : NetworkBehaviour
             FireServerRpc();
             // start muzzle flash
             // start muzzle flash on local player only
-            if (IsLocalPlayer)
-            {
-                muzzleFlash.Play();
-            }
+           // if (IsLocalPlayer)
+           // {
+           // }
         }
     }
 
-    public void Fire() 
-    {
-        NetworkObject bullet = Instantiate(bulletPrefab, shootingPoint.position, shootingPoint.rotation);
-        bullet.Spawn();
-        bullet.GetComponent<Rigidbody>().velocity = shootingPoint.forward * bulletSpeed;
-        //StartCoroutine(DestroyBulletAfterTime(bullet));
+    // public void Fire() 
+    // {
+    //     GameObject bullet = Instantiate(bulletPrefab, shootingPoint.position, shootingPoint.rotation);
+    //     bullet.GetComponent<NetworkObject>().Spawn();
+    //     bullet.GetComponent<Rigidbody>().velocity = shootingPoint.forward * bulletSpeed;
+    //     //StartCoroutine(DestroyBulletAfterTime(bullet));
 
-    }
+    // }
 
     
     [ServerRpc]
@@ -66,9 +65,10 @@ public class PlayerShoot : NetworkBehaviour
     {
         Debug.Log("FireServerRpc");
         // Instantiate and spawn the bullet on the server
-        NetworkObject bullet = Instantiate(bulletPrefab, shootingPoint.position, shootingPoint.rotation);
+        GameObject bullet = Instantiate(bulletPrefab, shootingPoint.position, shootingPoint.rotation);
+        bullet.GetComponent<NetworkObject>().Spawn();
+
         bullet.GetComponent<Rigidbody>().velocity = shootingPoint.forward * bulletSpeed;
-        bullet.Spawn();
         //StartCoroutine(DestroyBulletAfterTime(bullet));
         FireClientRpc();
     }
@@ -76,6 +76,9 @@ public class PlayerShoot : NetworkBehaviour
     [ClientRpc]
     public void FireClientRpc()
     {
+        
+        muzzleFlash.Play();
+
        
     }
 
