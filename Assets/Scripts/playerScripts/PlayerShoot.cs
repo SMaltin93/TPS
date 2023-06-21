@@ -49,16 +49,6 @@ public class PlayerShoot : NetworkBehaviour
            // }
         }
     }
-
-    // public void Fire() 
-    // {
-    //     GameObject bullet = Instantiate(bulletPrefab, shootingPoint.position, shootingPoint.rotation);
-    //     bullet.GetComponent<NetworkObject>().Spawn();
-    //     bullet.GetComponent<Rigidbody>().velocity = shootingPoint.forward * bulletSpeed;
-    //     //StartCoroutine(DestroyBulletAfterTime(bullet));
-
-    // }
-
     
     [ServerRpc]
     public void FireServerRpc(ServerRpcParams rpcParams = default)
@@ -75,11 +65,8 @@ public class PlayerShoot : NetworkBehaviour
 
     [ClientRpc]
     public void FireClientRpc()
-    {
-        
+    {    
         muzzleFlash.Play();
-
-       
     }
 
     IEnumerator DestroyBulletAfterTime(NetworkObject bullet)

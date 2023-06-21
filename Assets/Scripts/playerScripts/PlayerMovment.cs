@@ -43,14 +43,19 @@ public class PlayerMovment :  NetworkBehaviour
     private CharacterController controller;
     private Animator anim;
 
+    // animationfor grabed weapon
+    private bool isWeaponed; 
+
 
     // make character controller readable of every one
     // awack function
     private void Awake()
     {
         // make character controller readable of every one
+        
         controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
+        isWeaponed = anim.GetBool("isGrabbed");
         idle = true;
     }
 
@@ -75,12 +80,16 @@ public class PlayerMovment :  NetworkBehaviour
         // get input
         float move_z = Input.GetAxisRaw("Vertical");
         float move_x = Input.GetAxisRaw("Horizontal");
+      
         // calculate move direction
         moveDirection = new Vector3(move_x, 0, move_z);
         moveDirection = transform.TransformDirection(moveDirection); // to make the player move in the direction of the camera
         
         // set SpeedX and SpeedZ in the animator movex and movez smooth the transition between the animation
         // if the player is running in forward direction
+
+        Debug.Log("isWeaponed: " + isWeaponed);
+
         if (idle)
         {
             Idle();    
@@ -94,12 +103,10 @@ public class PlayerMovment :  NetworkBehaviour
         if (walkBack) {
             WalkBack();
         } 
-
         if (jump && isGrounded) {
 
             Jump();
-        }
-
+        }      
          moveDirection *= moveSpeed; // move the player
         // debug the last position and the last rotation
 
@@ -111,8 +118,6 @@ public class PlayerMovment :  NetworkBehaviour
         {
             Fall();
         }
-
-        // is landing if the distance between the player and the ground is less than 
     }
 
 
@@ -207,7 +212,8 @@ public class PlayerMovment :  NetworkBehaviour
         walkBack = Input.GetKey(KeyCode.S) || left || right;
         idle = !run && !walkBack && !jump && isGrounded && !walkForward;
         jump =  (Input.GetKey(KeyCode.Space) && run) || (Input.GetKey(KeyCode.Space) && walkForward) || (Input.GetKey(KeyCode.Space) && idle);
-        
+        //
+        isWeaponed = anim.GetBool("isGrabbed");
     }
 
 }
