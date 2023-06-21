@@ -11,33 +11,56 @@ public class PlayerPickUp : NetworkBehaviour
 
     [SerializeField] private LayerMask pickUpLayer;
 
-    // // Reference to the weapon holder
-    private Transform weaponHolder;
-    // // Reference to the find weapon point
+    // // Reference to the GrabbedWeapon holder
+    // anim refernce 
+    private Animator anim;
+    private bool isGrabbed = false;
+    // // Reference to the find GrabbedWeapon point
     private Transform findWeapon;
     // refernce to the "Tow Bone IK Constraint" as acomponent of the player
-    private TwoBoneIKConstraint twoBoneIKConstraint;
-    public static bool isGrabbed = false;
     // player id
-    private GameObject weapon;
+    private GameObject GrabbedWeapon;
+
+    // grabbed weapon orgina postion and rotation
+    private  Vector3 GrabbedWeaponOrgPos;
+    private Quaternion GrabbedWeaponOrgRot;
+    // for sync animation of the body
+    private Transform body;
+    private Vector3 bodyOldPos;
     
 
-    void Start()
+    void Awake()
     {
-        findWeapon = transform.Find("findWeapon");
-        twoBoneIKConstraint = GetComponent<TwoBoneIKConstraint>();
-        weapon = null;
+        
+        findWeapon = transform.Find("findWeapon"); //mixamorig:Hips
+        // find body with tag "body"
+        body = GameObject.FindWithTag("body").transform;
+        GrabbedWeapon = null;
+        anim = GetComponent<Animator>();
+        anim.SetBool("isGrabbed", false);
+        // GrabbedWeaponOrgPos constatnt
+
+        GrabbedWeaponOrgPos = new Vector3(0.12f, 1.5161f, 0.3601f);
+        GrabbedWeaponOrgRot = Quaternion.Euler(0, -90, 0);
+
+
     }
    
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (!IsOwner) return;
-        if (Input.GetKey(KeyCode.E) && weapon == null)
+        if (Input.GetKey(KeyCode.E) && GrabbedWeapon == null)
         {
-            //StartCoroutine(ToggleLagIndicator());
-            // saet target of the twoBoneIKConstraint to HandOfWeapon which is a child of the weapon
             PickUpWeapon();
+        }
+
+        // uppdate the GrabbedWeapon position as the body depend on owen position
+        if (GrabbedWeapon != null)
+        {
+            // body magitute
+            Vector3 animationBreathing = body.localPosition - bodyOldPos;
+            GrabbedWeapon.transform.localPosition = Vector3.Lerp(GrabbedWeaponOrgPos, GrabbedWeaponOrgPos + animationBreathing, 0.1f);   
         }
     }
 
@@ -47,26 +70,29 @@ public class PlayerPickUp : NetworkBehaviour
         if (Physics.Raycast(findWeapon.position, findWeapon.forward, out RaycastHit hit, pickUpRange))
         {
             Debug.Log("tag: " + hit.collider.gameObject.tag);
-            // findgameobject with tag weapon
+            // findgameobject with tag GrabbedWeapon
              if (hit.transform.tag == "Weapon")
             {
-                weapon = hit.transform.gameObject;
-                RequestPickUpWeaponServerRpc(weapon.GetComponent<NetworkObject>().NetworkObjectId);
-                twoBoneIKConstraint.data.target = weapon.transform.Find("HandOfWeapon");
+                isGrabbed = true;
+                anim.SetBool("isGrabbed", isGrabbed);
+                // uppdate the animation
+                GrabbedWeapon = hit.transform.gameObject;
+                bodyOldPos = body.localPosition;
+                RequestPickUpWeaponServerRpc(GrabbedWeapon.GetComponent<NetworkObject>().NetworkObjectId);
             } 
         }
     }
 
-    private void Grab(GameObject weapon) {
-        isGrabbed = true;
-        // weapon regidbody
-        Rigidbody rb = weapon.GetComponent<Rigidbody>();
+    private void Grab(GameObject GrabbedWeapon) {
+        // GrabbedWeapon regidbody
+        Rigidbody rb = GrabbedWeapon.GetComponent<Rigidbody>();
         rb.useGravity = false;
         rb.isKinematic = true;
         // set the parent of the objectGrabbPoint
-        weapon.transform.parent = transform;
-        weapon.transform.localPosition = new Vector3(0.13f, 1.534f, 0.472f);
-        weapon.transform.localRotation = Quaternion.Euler(0, -90, 0);
+        GrabbedWeapon.transform.parent = transform;
+        GrabbedWeapon.transform.localPosition = GrabbedWeaponOrgPos;
+        GrabbedWeapon.transform.localRotation = GrabbedWeaponOrgRot;
+
     }
 
     [ServerRpc]
@@ -86,6 +112,10 @@ public class PlayerPickUp : NetworkBehaviour
         var weaponObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[weaponNetId].gameObject;
         if (weaponObj == null) return;
     }
+
+ 
+
+
 
 
 
