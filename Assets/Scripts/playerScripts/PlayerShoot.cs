@@ -31,7 +31,7 @@ public class PlayerShoot : NetworkBehaviour
             {
                 if (child.tag == "Weapon")
                 {
-                    shootingPoint = child.Find("shootingPoint");
+                    shootingPoint = child.Find("sniperBody").Find("shootingPoint");
                     // shootingPoint has particle system as child
                     muzzleFlash = shootingPoint.GetComponentInChildren<ParticleSystem>();
                     break;  // Stop the loop as we found the shooting point
@@ -42,11 +42,6 @@ public class PlayerShoot : NetworkBehaviour
         if (Input.GetMouseButtonDown(0) && shootingPoint != null && IsLocalPlayer)
         {
             FireServerRpc();
-            // start muzzle flash
-            // start muzzle flash on local player only
-           // if (IsLocalPlayer)
-           // {
-           // }
         }
     }
     
