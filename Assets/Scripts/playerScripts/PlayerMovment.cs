@@ -15,8 +15,6 @@ public class PlayerMovment :  NetworkBehaviour
     [SerializeField] private float backSpeed;
     [SerializeField] private float sideSpeed;
 
-    private Transform playerTransform;
-
 
     private Vector3 moveDirection;
     private Vector3 velocity; // for gravity
@@ -42,7 +40,7 @@ public class PlayerMovment :  NetworkBehaviour
     // reference
     private CharacterController controller;
     private Animator anim;
-
+    private Camera playerCamera;
     // animationfor grabed weapon
     private bool isWeaponed; 
 
@@ -55,6 +53,7 @@ public class PlayerMovment :  NetworkBehaviour
         
         controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
+        playerCamera = GetComponentInChildren<Camera>();
         isWeaponed = anim.GetBool("isGrabbed");
         idle = true;
     }
@@ -126,9 +125,11 @@ public class PlayerMovment :  NetworkBehaviour
         // move
         moveSpeed = walkSpeed;
         //anim.SetFloat("SpeedX", 0);
-        anim.SetFloat("SpeedZ", 0.5f , 0.1f, Time.deltaTime);
+        anim.SetFloat("SpeedZ", 1f ,   0.1f, Time.deltaTime);
         // is ground
         anim.SetBool("isGrounded", isGrounded);
+
+        // if Input d or a is pressed)
 
        
     }
@@ -141,18 +142,20 @@ public class PlayerMovment :  NetworkBehaviour
         anim.SetBool("isGrounded", isGrounded);
 
         if (left) {
-            anim.SetFloat("SpeedX", -0.5f, 0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedX", -1f,  0.1f, Time.deltaTime);
             anim.SetFloat("SpeedZ", 0);
         }
         if (right) {
-            anim.SetFloat("SpeedX", 0.5f, 0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedX", 1f,  0.1f ,Time.deltaTime);
             anim.SetFloat("SpeedZ", 0);
         }
 
         if (!left && !right) {
             anim.SetFloat("SpeedX", 0);
-            anim.SetFloat("SpeedZ", -0.5f, 0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", -1f, 0.1f,  Time.deltaTime);
         }
+
+
 
     }
        
@@ -165,7 +168,7 @@ public class PlayerMovment :  NetworkBehaviour
         moveSpeed = runSpeed;
         anim.SetFloat("SpeedX", 0);
         // increase the speed of the player to 2.0f smooth 
-        anim.SetFloat("SpeedZ", 2.0f , 0.03f, Time.deltaTime);
+        anim.SetFloat("SpeedZ", 2.0f );
         // is ground
         anim.SetBool("isGrounded", isGrounded);
         anim.SetBool("isFalling", false);

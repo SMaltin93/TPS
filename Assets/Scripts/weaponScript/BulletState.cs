@@ -15,11 +15,11 @@ public class BulletState : NetworkBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        // destroy the bullet if it collides with something 
-       // if (IsLocalPlayer) {
-          Destroy(this.gameObject);
+
           RequestDespawnServerRpc(NetworkObject.NetworkObjectId);
-        //}
+          Destroy(this.gameObject);
+
+  
     }
 
     [ServerRpc]
