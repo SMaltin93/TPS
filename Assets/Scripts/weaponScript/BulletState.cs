@@ -16,8 +16,11 @@ public class BulletState : NetworkBehaviour
     private void OnCollisionEnter(Collision other)
     {
 
-          RequestDespawnServerRpc(NetworkObject.NetworkObjectId);
-          Destroy(this.gameObject);
+          if (NetworkObject != null && NetworkObject.IsSpawned)
+            {
+                RequestDespawnServerRpc(NetworkObject.NetworkObjectId);
+            }
+            Destroy(this.gameObject);
 
   
     }

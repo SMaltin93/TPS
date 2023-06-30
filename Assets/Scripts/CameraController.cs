@@ -27,11 +27,23 @@ public class CameraController : NetworkBehaviour
 
     // awack function
 
+    private float orginatxPos, orginatYPos, orginatZPos;
+
+    private float radius = 0;
+
       private void Awake()
     {
         playerCamera = GetComponent<Camera>();
+
+
+        orginatxPos = playerCamera.transform.localPosition.x;
+        orginatYPos = playerCamera.transform.localPosition.y;
+        orginatZPos = playerCamera.transform.localPosition.z;
+        
         anim = transform.parent.GetComponent<Animator>();
         parent = transform.parent;  
+
+       
     }
 
     private void Start()
@@ -64,23 +76,34 @@ public class CameraController : NetworkBehaviour
         currentY -= mouseY;
         currentX += mouseX;
     // currentX += mouseX;
-        currentY = Mathf.Clamp(currentY, -80f, 80f);
-        //currentX = Mathf.Clamp(currentX, -30f, 30f);
+        currentY = Mathf.Clamp(currentY, -45f, 45f);
         
-        // rotate camera
 
-    // in input c rotate the player
 
-    // if (isGrabbed)
-    // {
-    //     transform.localRotation = Quaternion.Euler(currentY, currentX, 0f);
-    // } 
-    // else {
         parent.Rotate(Vector3.up * mouseX);
         transform.localRotation = Quaternion.Euler(currentY, 0f, 0f);
-   // }
+
+        // Cos of the euler angle y of the camera
+         float radius = 2.5f ; // Vector3.Distance(transform.position, parent.position);
+
+         // debug radius
+            
+
+            // Calculate the normalized angle between -45 and 45 degrees
+         float normalizedAngle = (currentY + 45f) / 90f;
+
+            // Convert the normalized angle to radians
+
+         float angleInRadians = normalizedAngle * Mathf.PI / 2f;
+
+            float offsetY = ( radius * Mathf.Sin(angleInRadians) );
+            float offsetZ = ( radius * Mathf.Cos(angleInRadians) );
 
     
+            
+            transform.localPosition = new Vector3(orginatxPos, offsetY , -offsetZ ) ;
+
+ 
 
     }
 

@@ -12,8 +12,6 @@ public class PlayerPickUp : NetworkBehaviour
     [SerializeField] private LayerMask pickUpLayer;
     [SerializeField] private Transform rightHandHoldPosition;
 
-
-
     
     // anim refernce 
     private Animator anim;
@@ -33,8 +31,11 @@ public class PlayerPickUp : NetworkBehaviour
     private Transform SniperBody;
     // for sync animation of the body
 
-    // refernce to the target two bone ik constraint
-    private TwoBoneIKConstraint twoBoneIKConstraint; 
+    // refernce multi aim constraint 
+    private MultiAimConstraint multiAimConstraintRHand;
+    private TwoBoneIKConstraint twoBoneIKConstraintLHand;
+    // body Aim constraint
+
     // refernce ti Multi_aim constraint of the sniper 
   
 
@@ -61,6 +62,11 @@ public class PlayerPickUp : NetworkBehaviour
         groundTransform = null;
         SniperBody = null;
         // two bone ik constraint which is child in Rig/leftHandIK ;
+        multiAimConstraintRHand = transform.Find("Rig").Find("RHandAim").GetComponent<MultiAimConstraint>();
+        twoBoneIKConstraintLHand = transform.Find("Rig").Find("leftHandIK").GetComponent<TwoBoneIKConstraint>();
+
+        multiAimConstraintRHand.weight = 0;
+        twoBoneIKConstraintLHand.weight = 0;
     }
    
 
@@ -110,6 +116,10 @@ public class PlayerPickUp : NetworkBehaviour
        rb.useGravity = false;
        rb.isKinematic = true;
        GrabbedWeapon.transform.parent = transform;
+       // make multi aim constraint weight = 1
+         multiAimConstraintRHand.weight = 1;
+            twoBoneIKConstraintLHand.weight = 1;
+
     }
 
     private bool DistanceBeforeGrab(Transform hand, float distance) {
