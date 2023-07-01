@@ -84,8 +84,7 @@ public class CameraController : NetworkBehaviour
         transform.localRotation = Quaternion.Euler(currentY, 0f, 0f);
 
         // Cos of the euler angle y of the camera
-         float radius = 2.5f ; // Vector3.Distance(transform.position, parent.position);
-
+         float radius = 2.5f; 
          // debug radius
             
 
@@ -101,7 +100,7 @@ public class CameraController : NetworkBehaviour
 
     
             
-            transform.localPosition = new Vector3(orginatxPos, offsetY , -offsetZ ) ;
+            transform.localPosition = new Vector3(orginatxPos, offsetY , -1*(offsetZ + 2) ) ;
 
  
 

@@ -32,9 +32,11 @@ public class PlayerMovment :  NetworkBehaviour
     private bool walkBack = false;
     private bool run = false;
     private bool jump = false;
-    private bool left = false;
-    private bool right = false;
+    private bool walkLeft = false;
+    private bool walkRight = false;
     private bool idle = false;
+
+    private bool hasJumped = false;
 
 
     // reference
@@ -96,15 +98,23 @@ public class PlayerMovment :  NetworkBehaviour
         if (walkForward) {
             WalkForward();
         }
+
+        if ((walkLeft || walkRight) ) {
+            WalkRightOrLeft();
+        }
         if (run) {
             Run();
         }
-        if (walkBack) {
+        if (walkBack ) {
             WalkBack();
         } 
         if (jump && isGrounded) {
-
-            Jump();
+            if (!hasJumped)
+            {
+                Jump();
+                // start coroutine
+                StartCoroutine(WaitToJump());
+            }
         }      
          moveDirection *= moveSpeed; // move the player
         // debug the last position and the last rotation
@@ -125,13 +135,38 @@ public class PlayerMovment :  NetworkBehaviour
         // move
         moveSpeed = walkSpeed;
         //anim.SetFloat("SpeedX", 0);
-        anim.SetFloat("SpeedZ", 1f ,   0.1f, Time.deltaTime);
+        //anim.SetFloat("SpeedZ", 1f ,   0.1f, Time.deltaTime);
         // is ground
         anim.SetBool("isGrounded", isGrounded);
 
-        // if Input d or a is pressed)
+        // if D is pressed
+        if (Input.GetKey(KeyCode.D))
+        {
+            anim.SetFloat("SpeedX", 1f,  0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", 1f,  0.1f, Time.deltaTime);
+        } else if (Input.GetKey(KeyCode.A)) // if A is pressed
+        {
+            anim.SetFloat("SpeedX", -1f,  0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", 1f,  0.1f, Time.deltaTime);
+        } else {
+            
+            anim.SetFloat("SpeedZ", 1f ,   0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedX", 0 ,   0.1f, Time.deltaTime);
+        }
+    }
+    private void WalkRightOrLeft() {
+ 
 
-       
+         if (Input.GetKey(KeyCode.A)) {
+            anim.SetFloat("SpeedX", -1f,  0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", 0 ,  0.1f, Time.deltaTime);
+        }
+         if (Input.GetKey(KeyCode.D))
+        {
+            anim.SetFloat("SpeedX", 1f,  0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", 0 ,  0.1f, Time.deltaTime);
+        }
+        
     }
 
     private void WalkBack()
@@ -141,21 +176,16 @@ public class PlayerMovment :  NetworkBehaviour
         // is ground
         anim.SetBool("isGrounded", isGrounded);
 
-        if (left) {
+        if (Input.GetKey(KeyCode.D)) {
+            anim.SetFloat("SpeedX", 1f,  0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", -1f,  0.1f, Time.deltaTime);
+        } else if (Input.GetKey(KeyCode.A)) {
             anim.SetFloat("SpeedX", -1f,  0.1f, Time.deltaTime);
-            anim.SetFloat("SpeedZ", 0);
+            anim.SetFloat("SpeedZ", -1f,  0.1f, Time.deltaTime);
+        } else {
+            anim.SetFloat("SpeedZ", -1f ,   0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedX", 0 ,   0.1f, Time.deltaTime);
         }
-        if (right) {
-            anim.SetFloat("SpeedX", 1f,  0.1f ,Time.deltaTime);
-            anim.SetFloat("SpeedZ", 0);
-        }
-
-        if (!left && !right) {
-            anim.SetFloat("SpeedX", 0);
-            anim.SetFloat("SpeedZ", -1f, 0.1f,  Time.deltaTime);
-        }
-
-
 
     }
        
@@ -163,22 +193,40 @@ public class PlayerMovment :  NetworkBehaviour
 
     private void Run()
     {
-        // move if w is pressed
-        
         moveSpeed = runSpeed;
-        anim.SetFloat("SpeedX", 0);
-        // increase the speed of the player to 2.0f smooth 
-        anim.SetFloat("SpeedZ", 2.0f );
+        // anim.SetFloat("SpeedX", 0);
+        // // increase the speed of the player to 2.0f smooth 
+        // anim.SetFloat("SpeedZ", 2.0f );
         // is ground
         anim.SetBool("isGrounded", isGrounded);
         anim.SetBool("isFalling", false);
         anim.SetBool("isJumping", false);
+
+        if (Input.GetKey(KeyCode.D)) {
+            anim.SetFloat("SpeedX", 1f,  0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", 2.0f,  0.01f, Time.deltaTime);
+        } else if (Input.GetKey(KeyCode.A)) {
+            anim.SetFloat("SpeedX", -1f,  0.1f, Time.deltaTime);
+            anim.SetFloat("SpeedZ", 2.0f,  0.01f, Time.deltaTime);
+        } else {
+            anim.SetFloat("SpeedZ", 2.0f ,   0.01f, Time.deltaTime);
+            anim.SetFloat("SpeedX", 0 ,   0.1f, Time.deltaTime);
+        }
+    }
+
+    // wait to jump coroutine
+    IEnumerator WaitToJump()
+    {
+        yield return new WaitForSeconds(1f);
+        hasJumped = false;
     }
 
     private void Jump()
     { 
         velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity/2);
         anim.SetBool("isJumping", jump);
+        anim.SetTrigger("jump");
+        hasJumped = true;
         anim.SetBool("isFalling", false);
         anim.SetBool("isGrounded", isGrounded);
     }
@@ -206,14 +254,17 @@ public class PlayerMovment :  NetworkBehaviour
 
     private void InputPlayerState()
     {
-        walkForward = Input.GetKey(KeyCode.W) 
-        || (Input.GetKey(KeyCode.D) && Input.GetKey(KeyCode.W)) 
-        || (Input.GetKey(KeyCode.A) && Input.GetKey(KeyCode.W));
+        walkForward = Input.GetKey(KeyCode.W);
+
         run = Input.GetKey(KeyCode.LeftShift) && walkForward;
-        left = Input.GetKey(KeyCode.A) && !run;
-        right = Input.GetKey(KeyCode.D) && !run;
-        walkBack = Input.GetKey(KeyCode.S) || left || right;
-        idle = !run && !walkBack && !jump && isGrounded && !walkForward;
+
+        walkLeft = Input.GetKey(KeyCode.A) && !run && !walkForward && !walkBack;
+        walkRight = Input.GetKey(KeyCode.D) && !run && !walkForward && !walkBack;
+
+        walkBack = Input.GetKey(KeyCode.S);
+
+        idle = !run && !walkBack && !jump && isGrounded && !walkForward && !walkLeft && !walkRight;
+
         jump =  (Input.GetKey(KeyCode.Space) && run) || (Input.GetKey(KeyCode.Space) && walkForward) || (Input.GetKey(KeyCode.Space) && idle);
         //
         isWeaponed = anim.GetBool("isGrabbed");

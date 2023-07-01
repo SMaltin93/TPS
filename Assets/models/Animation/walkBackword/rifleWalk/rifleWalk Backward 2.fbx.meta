@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f656aee7a9a6a1b4face82d1a2890691
+guid: 159a378df012b2d41bb73b249e4be833
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: WalkingForwLeft
+      name: rifleBackL
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 31
+      lastFrame: 30
       wrapMode: 0
       orientationOffsetY: 45
       level: 0
