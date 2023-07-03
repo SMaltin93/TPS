@@ -48,11 +48,12 @@ public class AimState : NetworkBehaviour
      
         Ray ray = playerCamera.ScreenPointToRay(ScreenCenterPoint);
         RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, AimLayer))
+        // max value of the ray is 1000 
+        if (Physics.Raycast(ray, out hit, 1000, AimLayer)) 
         {
-            Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
-            AimPosition.position = Vector3.Lerp(AimPosition.position, hit.point, Time.deltaTime * AimSmoothSpeed);   
+            // Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
+           // AimPosition.position = Vector3.Lerp(AimPosition.position, hit.point, Time.deltaTime * AimSmoothSpeed);
+            AimPosition.position = hit.point;
         }
 
         if (isWeaponed)
