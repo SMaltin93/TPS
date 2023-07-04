@@ -26,10 +26,17 @@ public class CameraController : NetworkBehaviour
     private float currentX = 0f;
 
     // awack function
+    private float orginatxPos;
 
-    private float orginatxPos, orginatYPos, orginatZPos;
+    private AimState aimState;
+    private Transform CameraScopePosition;
 
     private float radius = 0;
+
+    // breath
+    Vector3 startPos;
+    public float amplitude = 0.1f;
+    public float period = 1f;
 
       private void Awake()
     {
@@ -37,13 +44,13 @@ public class CameraController : NetworkBehaviour
 
 
         orginatxPos = playerCamera.transform.localPosition.x;
-        orginatYPos = playerCamera.transform.localPosition.y;
-        orginatZPos = playerCamera.transform.localPosition.z;
         
         anim = transform.parent.GetComponent<Animator>();
-        parent = transform.parent;  
+        parent = transform.parent;
 
-       
+        startPos = transform.localPosition;
+
+        aimState = parent.GetComponent<AimState>();
     }
 
     private void Start()
@@ -81,29 +88,30 @@ public class CameraController : NetworkBehaviour
 
 
         parent.Rotate(Vector3.up * mouseX);
+        // allow y rotate as 2d
         transform.localRotation = Quaternion.Euler(currentY, 0f, 0f);
 
         // Cos of the euler angle y of the camera
-         float radius = 2.5f; 
-         // debug radius
-            
+        float radius = 2.5f; 
+        // debug radius
+        // Calculate the normalized angle between -45 and 45 degrees
+        float normalizedAngle = (currentY + 45f) / 90f;
+        float angleInRadians = normalizedAngle * Mathf.PI / 2f;
+        float offsetY = ( radius * Mathf.Sin(angleInRadians) );
+        float offsetZ = ( radius * Mathf.Cos(angleInRadians) );
 
-            // Calculate the normalized angle between -45 and 45 degrees
-         float normalizedAngle = (currentY + 45f) / 90f;
-
-            // Convert the normalized angle to radians
-
-         float angleInRadians = normalizedAngle * Mathf.PI / 2f;
-
-            float offsetY = ( radius * Mathf.Sin(angleInRadians) );
-            float offsetZ = ( radius * Mathf.Cos(angleInRadians) );
-
-    
-            
+        // is scoped 
+        if (aimState.IsScoped()) {;
+            //  float theta = Time.timeSinceLevelLoad / period;
+            // float distance = amplitude * Mathf.Sin(theta);
+            float distance = Mathf.Sin(Time.timeSinceLevelLoad)/1000f;
+            transform.position =  aimState.GetScopePosition().position + new Vector3(0, distance, 0);
+        
+        } else {
             transform.localPosition = new Vector3(orginatxPos, offsetY , -1*(offsetZ + 2) ) ;
-
- 
+        }
 
     }
+
 
 }

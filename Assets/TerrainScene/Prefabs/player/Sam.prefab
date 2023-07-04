@@ -748,8 +748,8 @@ MonoBehaviour:
         transform: {fileID: 0}
         weight: 0
     m_Offset: {x: 0, y: 0, z: 0}
-    m_MinLimit: -180
-    m_MaxLimit: 180
+    m_MinLimit: -90
+    m_MaxLimit: 90
     m_AimAxis: 2
     m_UpAxis: 5
     m_WorldUpType: 0
@@ -1628,6 +1628,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   playerCamera: {fileID: 3971390225822946413}
+  aimImage: {fileID: 4912102954586384805}
 --- !u!1 &3150290606539564143
 GameObject:
   m_ObjectHideFlags: 0
@@ -2564,7 +2565,7 @@ GameObject:
   - component: {fileID: 6053588679567799874}
   - component: {fileID: 4912102954586384805}
   m_Layer: 5
-  m_Name: Image
+  m_Name: cursor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3606,6 +3607,10 @@ PrefabInstance:
     - target: {fileID: 2735823871828483057, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2735823871828483057, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
+      propertyPath: near clip plane
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 4395521193004485654, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_RootOrder

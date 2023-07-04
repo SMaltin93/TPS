@@ -165,10 +165,7 @@ public class PlayerPickUp : NetworkBehaviour
     private void FollowTheHand() {
 
         SniperBody.localPosition = GrabbedWeaponOrgPos;
-        GrabbedWeapon.transform.position = rightHandHoldPosition.position;
-        GrabbedWeapon.transform.rotation = rightHandHoldPosition.rotation * Quaternion.Euler(1, 1, 90);
-
-          // if animation rifleIdle is playing then stop it
+        
         string currentAnimation = anim.GetCurrentAnimatorClipInfo(0)[0].clip.name;
             Debug.Log("currentAnimation: " + currentAnimation);
 
@@ -188,17 +185,16 @@ public class PlayerPickUp : NetworkBehaviour
             twoBoneIKConstraintLHand.weight = 0;
             twoBoneIKConstraintrunLHand.weight = 1;
             multiAimConstraintLHand.weight = 0;
-        //     leftHandIk.localPosition = rightHandHoldPosition.localPosition - distanceBetweenHands;
-        // } else {
-        //    float x = Mathf.Sqrt(Mathf.Pow(leftHandIk.localPosition.x - rightHandHoldPosition.localPosition.x, 2));
-        //    float y = Mathf.Sqrt(Mathf.Pow(leftHandIk.localPosition.y - rightHandHoldPosition.localPosition.y, 2));
-        //    float z = Mathf.Sqrt(Mathf.Pow(leftHandIk.localPosition.z - rightHandHoldPosition.localPosition.z, 2)); 
-        //    distanceBetweenHands = new Vector3(x, y, z);
         } else {
             twoBoneIKConstraintLHand.weight = 1;
             multiAimConstraintLHand.weight = 1;
             twoBoneIKConstraintrunLHand.weight = 0;
         }
+
+
+        GrabbedWeapon.transform.position = Vector3.Lerp(GrabbedWeapon.transform.position, rightHandHoldPosition.position, Time.deltaTime * 10f);
+        // rotate smoothly
+        GrabbedWeapon.transform.rotation = Quaternion.Lerp(GrabbedWeapon.transform.rotation, rightHandHoldPosition.rotation * Quaternion.Euler(0, 1, 90) , Time.deltaTime * 10f);
 
     }
 
