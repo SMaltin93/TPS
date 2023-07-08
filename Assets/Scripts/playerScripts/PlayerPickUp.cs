@@ -129,7 +129,7 @@ public class PlayerPickUp : NetworkBehaviour
             float oldDistanceOfHand = Vector3.Distance(hand.position, hand.up * currentDistanceOfHand);
             newDistanceOfHand = Mathf.Abs(oldDistanceOfHand - currentDistanceOfHand);
         }
-        if (newDistanceOfHand < 0.3f) {
+        if (newDistanceOfHand < 0.5f) {
             return true;
         }
         return false;
