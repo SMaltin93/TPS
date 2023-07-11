@@ -52,6 +52,8 @@ public class PlayerPickUp : NetworkBehaviour
     public NetworkVariable<int> SetAnimRig = new NetworkVariable<int>(0,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
+    private int weight = 0;
+
 
     [SerializeField] private Rig constraintRig;
     
