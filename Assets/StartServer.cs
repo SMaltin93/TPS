@@ -2,7 +2,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
-using TMPro; // if you are using TextMeshPro for your input field
+using TMPro;
+using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
 public class StartServer : MonoBehaviour
 {
@@ -23,8 +25,14 @@ public class StartServer : MonoBehaviour
     {
         string serverName = inputField.text; // get server name from input field
         StartCoroutine(PostData($"{{\"name\": \"{serverName}\"}}")); // post server name to server
-        // Call your function to start the game as host here
+        
+        SceneManager.LoadScene("Game");
+
+        //NetworkManager.Singleton.StartHost();
+
         Debug.Log("starting game as host...");
+
+
     }
 
     private IEnumerator PostData(string json)
@@ -44,6 +52,18 @@ public class StartServer : MonoBehaviour
         else
         {
             Debug.Log("Post complete!");
+        }
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Start the game as host
+        if (scene.name == "Game")
+        {
+            NetworkManager.Singleton.StartHost();
+            Debug.Log("Game started as host");
+            // Remove the event listener when the host starts
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
     }
 }
