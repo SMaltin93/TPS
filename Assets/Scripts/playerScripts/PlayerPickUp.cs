@@ -6,11 +6,16 @@ using Unity.Multiplayer.Samples.Utilities.ClientAuthority;
 using UnityEngine.Animations.Rigging;
 
 
+
 public class PlayerPickUp : NetworkBehaviour
 {
 
     [SerializeField] private LayerMask pickUpLayer;
     [SerializeField] private Transform rightHandHoldPosition;
+
+    [SerializeField] private Transform Target;
+
+    [SerializeField] private float pickUpRange = 1f;
 
     
     // anim refernce 
@@ -23,195 +28,143 @@ public class PlayerPickUp : NetworkBehaviour
     private Transform findWeapon;
     // refernce to the "Tow Bone IK Constraint" as acomponent of the player
     // player id
-    private GameObject GrabbedWeapon;
 
-    // grabbed weapon orgina postion and rotation
-    private  Vector3 GrabbedWeaponOrgPos;
-    private Quaternion GrabbedWeaponOrgRot;
+
     private Transform SniperBody;
-    private Vector3  onLeftHand;
+
 
     // refernce multi aim constraint 
-    private MultiAimConstraint multiAimConstraintRHand, multiAimConstraintLHand, multiAimConstraintBody;
-    private TwoBoneIKConstraint twoBoneIKConstraintLHand,twoBoneIKConstraintrunLHand;
-    private Transform leftHandIk;
-    private Transform rightHandTarget;
-    private Vector3 distanceBetweenHands = new Vector3(0, 0, 0);
-    private bool setAim = false;
-    // body Aim constraint
+    private MultiAimConstraint multiAimConstraintRHand, multiAimConstraintBody;
 
-    // refernce ti Multi_aim constraint of the sniper 
   
-
+    // body Aim constraint
     private LayerMask groundLayer;
     private Transform groundTransform ;
 
+    private  AnimRig animRig;
+    private AimState aimState;
+    private bool Aim = false;
+    // make a network variable write of Owner
+    public  NetworkVariable<ulong> GrabbedWeapon = new NetworkVariable<ulong>(default,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    // write premision of owner
+
+    public NetworkVariable<int> SetAnimRig = new NetworkVariable<int>(0,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+
+    [SerializeField] private Rig constraintRig;
     
 
-    void Awake()
+    void Start()
     {
+
+        SetAnimRig.OnValueChanged += (previousValue, newValue) =>
+        {
+            constraintRig.weight = newValue; 
+        };
+ 
+        SniperBody = null;
+        anim = GetComponent<Animator>();
+
+        if (!IsOwner) return;
         
         findWeapon = transform.Find("findWeapon"); 
-        
-        GrabbedWeapon = null;
-        anim = GetComponent<Animator>();
         anim.SetBool("isGrabbed", false);
         anim.SetBool("isPickingUp", false);
-
-        GrabbedWeaponOrgPos = new Vector3(1.164f, 0.282f, 0.537f);
-        GrabbedWeaponOrgRot = Quaternion.Euler(0, -90, 0);
-
-        // ground layer
-        groundLayer = LayerMask.GetMask("Ground");
-        groundTransform = null;
-        SniperBody = null;
-        // two bone ik constraint which is child in Rig/leftHandIK ;
-        multiAimConstraintRHand = transform.Find("Rig").Find("RHandAim").GetComponent<MultiAimConstraint>();
-        multiAimConstraintLHand = transform.Find("Rig").Find("LHandAim").GetComponent<MultiAimConstraint>();
-        multiAimConstraintBody = transform.Find("Rig").Find("bodyAim").GetComponent<MultiAimConstraint>();
-        twoBoneIKConstraintLHand = transform.Find("Rig").Find("leftHandIK").GetComponent<TwoBoneIKConstraint>();
-        twoBoneIKConstraintrunLHand = transform.Find("Rig").Find("runLeftHandIK").GetComponent<TwoBoneIKConstraint>();
-        
-
-        leftHandIk = twoBoneIKConstraintLHand.data.target;
-
-        // rightHandTarget is constraint object in the multi aim constraint
-        rightHandTarget = multiAimConstraintRHand.data.constrainedObject;
-
-
-
-        // runLeftHandIk is child of the leftHandIk
-        //runLeftHandIk = leftHandIk.Find("runLeftHandTarget");
-
-        multiAimConstraintRHand.weight = 0;
-        multiAimConstraintLHand.weight = 0;
-        multiAimConstraintBody.weight = 0.1f;
-
-        twoBoneIKConstraintrunLHand.weight = 0;
-        twoBoneIKConstraintLHand.weight = 0;
+        animRig = GetComponent<AnimRig>();
+        aimState = GetComponent<AimState>();
     }
+
+
+
    
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (!IsOwner) return;
-        if (Input.GetKey(KeyCode.E) && GrabbedWeapon == null)
+        if (Input.GetKey(KeyCode.E) && GrabbedWeapon.Value == 0)
         {
             PickUpWeapon();
             
         }
 
-        if (isGrabbed) {
-            if ( DistanceBeforeGrab (rightHandHoldPosition, 0.5f) ) {
-                RequestPickUpWeaponServerRpc(GrabbedWeapon.GetComponent<NetworkObject>().NetworkObjectId);
-                isGrabbed = !isGrabbed;
-            }
-        }
-        if (GrabbedWeapon != null && !isGrabbed) {
-            FollowTheHand();
-        }
-        //Debug.DrawRay(rightHandHoldPosition.position, rightHandHoldPosition.up * 100f, Color.red);
+    //    if (Input.GetKeyDown(KeyCode.F) )  {
+    //         SetAnimRig.Value =  constraintRig.weight == 0 ? 1 : 0;
+    //    }
+
+        if (Aim) {
+            aimState.Aim(NetworkManager.Singleton.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject);
+            animRig.SetParentConstraint(NetworkManager.Singleton.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject.transform);
+            animRig.SetLeftHandTarget(NetworkManager.Singleton.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject.transform);
+            SetAnimRig.Value =  1;
+        } 
+
+        Debug.DrawRay(rightHandHoldPosition.position, rightHandHoldPosition.up * 100f, Color.red);
     }
 
     private void PickUpWeapon()
     {
-        float pickUpRange = 1f;
+       
         if (Physics.Raycast(findWeapon.position, findWeapon.forward, out RaycastHit hit, pickUpRange))
         {
             Debug.Log("tag: " + hit.collider.gameObject.tag);
             // findgameobject with tag GrabbedWeapon
+
              if (hit.transform.tag == "Weapon")
             {
-                // set the weapon as a target of the two bone ik constraint
-                isGrabbed = true;
-                // isPickingUp is trigger in the animation
-                anim.SetTrigger("pickUp");
-                anim.SetBool("isGrabbed", isGrabbed);
-                GrabbedWeapon = hit.transform.gameObject;
-                SniperBody = GrabbedWeapon.transform.Find("sniperBody");
+                SetParentServerRpc(hit.transform.gameObject.GetComponent<NetworkObject>().NetworkObjectId); 
             } 
         }
     }
 
-    private void Grab(GameObject GrabbedWeapon) {
-       Rigidbody rb = GrabbedWeapon.GetComponent<Rigidbody>();
-       rb.useGravity = false;
-       rb.isKinematic = true;
-       GrabbedWeapon.transform.parent = transform;
+    private void Grab(GameObject Weapon, ulong weaponId) {
+        Debug.Log("GrabbedWeapon: IS NOT NULL");
+        Rigidbody rb = Weapon.GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.isKinematic = true;
+        SniperBody = Weapon.transform.Find("sniperBody");
+        isGrabbed = true;
+        anim.SetTrigger("pickUp");
+        anim.SetBool("isGrabbed", isGrabbed);
+        GameObject weaponObjec = NetworkManager.Singleton.SpawnManager.SpawnedObjects[weaponId].gameObject;
+        MakeParent(transform);
+        Aim = true;
     }
 
-    private bool DistanceBeforeGrab(Transform hand, float distance) {
 
-        float newDistanceOfHand = 100f;
-        Ray ray = new Ray(hand.position, hand.up);
-        bool ground = false;
-        if (!ground) {
-            if (Physics.Raycast(ray, out RaycastHit hit, 5f, groundLayer)) {
-                groundTransform = hit.transform;
-                ground = !ground;
-            }
-        }
-        if (ground) {
-            float currentDistanceOfHand = Vector3.Distance(hand.position, groundTransform.position);
-            float oldDistanceOfHand = Vector3.Distance(hand.position, hand.up * currentDistanceOfHand);
-            newDistanceOfHand = Mathf.Abs(oldDistanceOfHand - currentDistanceOfHand);
-        }
-        if (newDistanceOfHand < distance) {
-            return true;
-        }
-        return false;
-    }
 
-    private void FollowTheHand() {
-
-        SniperBody.localPosition = GrabbedWeaponOrgPos;
+    private void MakeParent(Transform isParent) {
+        if (GrabbedWeapon.Value == 0) return;
+        var weapon = NetworkManager.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject;
+        weapon.transform.parent = isParent;
         
-        string currentAnimation = anim.GetCurrentAnimatorClipInfo(0)[0].clip.name;
-            Debug.Log("currentAnimation: " + currentAnimation);
-
-         if (!setAim) {
-            if (currentAnimation == "RifleIdle") {
-                // make multi aim constraint weight = 1
-                multiAimConstraintRHand.weight = 1;
-                multiAimConstraintLHand.weight = 1;
-                multiAimConstraintBody.weight = 1;
-                twoBoneIKConstraintLHand.weight = 1; 
-                twoBoneIKConstraintrunLHand.weight = 0;
-                setAim = !setAim;
-            }
-        }
-
-        if ( currentAnimation != "RifleIdle" && currentAnimation != "rifleBack" ) {
-            twoBoneIKConstraintLHand.weight = 0;
-            twoBoneIKConstraintrunLHand.weight = 1;
-            multiAimConstraintLHand.weight = 0;
-        } else {
-            twoBoneIKConstraintLHand.weight = 1;
-            multiAimConstraintLHand.weight = 1;
-            twoBoneIKConstraintrunLHand.weight = 0;
-        }
-
-
-        GrabbedWeapon.transform.position = Vector3.Lerp(GrabbedWeapon.transform.position, rightHandHoldPosition.position, Time.deltaTime * 10f);
-        // rotate smoothly
-        GrabbedWeapon.transform.rotation = Quaternion.Lerp(GrabbedWeapon.transform.rotation, rightHandHoldPosition.rotation * Quaternion.Euler(0, 1, 90) , Time.deltaTime * 10f);
-
     }
+
+    private Vector3 StartRandomPosition() {
+        return new Vector3(-2f,   10f ,  2f);
+    }
+
 
     [ServerRpc]
-    private void RequestPickUpWeaponServerRpc(ulong weaponNetId)
-    {
-       var weaponObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[weaponNetId].gameObject;
-       Grab(weaponObj);
-       pickUpWeaponClientRpc(weaponNetId);
-    
+    private void SetParentServerRpc(ulong weaponId, ServerRpcParams rpcParams = default) {
+        var weapon = NetworkManager.SpawnManager.SpawnedObjects[weaponId].gameObject;
+        Debug.Log("request server rpc");
+        weapon.GetComponent<NetworkObject>().ChangeOwnership(rpcParams.Receive.SenderClientId);
+        GrabbedWeapon.Value = weaponId;
+        SetParentClientRpc(weaponId, rpcParams.Receive.SenderClientId);
+        Grab(weapon, weaponId); 
+
     }
 
     [ClientRpc]
-    private void pickUpWeaponClientRpc (ulong weaponNetId)
-    {   
-        var weaponObj = NetworkManager.Singleton.SpawnManager.SpawnedObjects[weaponNetId].gameObject;
-        if (weaponObj == null) return;
+    private void SetParentClientRpc(ulong weaponId,ulong clientId) {
+        if (NetworkManager.Singleton.LocalClientId != clientId) return;
+
+        var weapon = NetworkManager.SpawnManager.SpawnedObjects[weaponId].gameObject;
+        if (weapon == null || GrabbedWeapon.Value != 0) return;
+
+        Grab(weapon, weaponId);
     }
 
 }
