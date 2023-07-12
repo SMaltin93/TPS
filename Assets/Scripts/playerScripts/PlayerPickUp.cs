@@ -44,6 +44,7 @@ public class PlayerPickUp : NetworkBehaviour
     private  AnimRig animRig;
     private AimState aimState;
     private bool Aim = false;
+    private bool AnimR = false;
     // make a network variable write of Owner
     public  NetworkVariable<ulong> GrabbedWeapon = new NetworkVariable<ulong>(default,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -52,7 +53,6 @@ public class PlayerPickUp : NetworkBehaviour
     public NetworkVariable<int> SetAnimRig = new NetworkVariable<int>(0,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-    private int weight = 0;
 
 
     [SerializeField] private Rig constraintRig;
@@ -70,10 +70,9 @@ public class PlayerPickUp : NetworkBehaviour
         anim = GetComponent<Animator>();
 
         if (!IsOwner) return;
-        
+        constraintRig.weight = 0;
         findWeapon = transform.Find("findWeapon"); 
         anim.SetBool("isGrabbed", false);
-        anim.SetBool("isPickingUp", false);
         animRig = GetComponent<AnimRig>();
         aimState = GetComponent<AimState>();
     }
@@ -97,9 +96,12 @@ public class PlayerPickUp : NetworkBehaviour
 
         if (Aim) {
             aimState.Aim(NetworkManager.Singleton.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject);
-            animRig.SetParentConstraint(NetworkManager.Singleton.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject.transform);
-            animRig.SetLeftHandTarget(NetworkManager.Singleton.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject.transform);
-            SetAnimRig.Value =  1;
+            if (!AnimR) {
+                animRig.SetParentConstraint(NetworkManager.Singleton.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject.transform);
+               // animRig.SetLeftHandTarget(NetworkManager.Singleton.SpawnManager.SpawnedObjects[GrabbedWeapon.Value].gameObject.transform);
+                SetAnimRig.Value =  1;
+                AnimR = true;  
+            }
         } 
 
         Debug.DrawRay(rightHandHoldPosition.position, rightHandHoldPosition.up * 100f, Color.red);
