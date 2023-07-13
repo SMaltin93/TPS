@@ -1296,7 +1296,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   isGrounded: 0
-  jumpHeight: 1
+  jumpHeight: 2
 --- !u!114 &2987780514023040558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1514,7 +1514,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AimPosition: {fileID: 792492126423734256}
-  AimSmoothSpeed: 10
   AimLayer:
     serializedVersion: 2
     m_Bits: 512
