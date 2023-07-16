@@ -10,12 +10,12 @@ public class PlayerShoot : NetworkBehaviour
    // [SerializeField] private float bulletDistance;
 
     // reference to the shootingpoint that is a child of the weapon
-    private Transform shootingPoint;
+    [SerializeField] private Transform shootingPoint;
 
-    private PlayerPickUp playerPickUp;
+    private PlayerState playerState;
 
     // reference to the particle system
-    private ParticleSystem muzzleFlash;
+    [SerializeField] private ParticleSystem muzzleFlash;
 
 
     
@@ -24,33 +24,20 @@ public class PlayerShoot : NetworkBehaviour
     // start it with null 
     private void Awake()
     {
-        shootingPoint = null;
-        muzzleFlash = null;
-        playerPickUp = GetComponent<PlayerPickUp>();
+        // shootingPoint = null;
+        // muzzleFlash = null;
+        playerState = GetComponent<PlayerState>();
 
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Shoot()
     {
-
-        if (!IsOwner) return;
-    
-        if (Input.GetMouseButtonDown(0) && playerPickUp.GrabbedWeapon.Value != 0) {
-            FireServerRpc(playerPickUp.GrabbedWeapon.Value);
-        } 
-        
+        FireServerRpc();
     }
     
     [ServerRpc]
-    public void FireServerRpc(ulong weaponId) 
+    public void FireServerRpc() 
     {
-        Debug.Log("FireServerRpc");
-        // Assign shootingPoint and muzzleFlash for the specific weapon
-        NetworkObject grabbedWeapon = NetworkManager.Singleton.SpawnManager.SpawnedObjects[weaponId];
-        GameObject weapon = grabbedWeapon.gameObject;
-        shootingPoint = weapon.transform.Find("sniperBody").Find("shootingPoint");
-        muzzleFlash = shootingPoint.GetComponentInChildren<ParticleSystem>();
 
         NetworkObject bullet = Instantiate(bulletPrefab,shootingPoint.position, shootingPoint.rotation).GetComponent<NetworkObject>();
         bullet.Spawn();
@@ -63,9 +50,7 @@ public class PlayerShoot : NetworkBehaviour
     [ClientRpc]
     public void FireClientRpc()
     {    
-        NetworkObject grabbedWeapon = NetworkManager.Singleton.SpawnManager.SpawnedObjects[playerPickUp.GrabbedWeapon.Value];
-        GameObject weapon = grabbedWeapon.gameObject;
-        shootingPoint = weapon.transform.Find("sniperBody").Find("shootingPoint");
+
         muzzleFlash = shootingPoint.GetComponentInChildren<ParticleSystem>();
         muzzleFlash.Play();
     

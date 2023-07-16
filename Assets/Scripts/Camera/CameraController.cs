@@ -11,6 +11,8 @@ public class CameraController : NetworkBehaviour
 
     [SerializeField] private float mouseSensitivity;
 
+    [SerializeField] private Transform ScopePosition;   
+
     // reference
     private Transform parent;
     private Camera playerCamera;
@@ -76,7 +78,7 @@ public class CameraController : NetworkBehaviour
         if (aimState.IsScoped()) {;
             float distance = Mathf.Sin(Time.timeSinceLevelLoad)/1000f;
             float distanceX = Mathf.Cos(Time.timeSinceLevelLoad)/1000f;
-            transform.position = Vector3.Lerp(transform.position, aimState.GetScopePosition().position + new Vector3(distanceX, distance, 0), Time.deltaTime * 10f);
+            transform.position = Vector3.Lerp(transform.position, ScopePosition.position + new Vector3(distanceX, distance, 0), Time.deltaTime * 10f);
 
         
         } else {
