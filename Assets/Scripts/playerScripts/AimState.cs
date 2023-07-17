@@ -17,10 +17,15 @@ public class AimState : NetworkBehaviour
     [SerializeField] private Image aimImage;
 
 
+    [SerializeField] private Camera scopeCamera;
+    [SerializeField] private Transform shootingPoint;
+
+
+
     private Vector2 ScreenCenterPoint;
     
-    private Transform shootingPoint;
-    private Transform aimScope;
+
+
 
 
     private bool isScoped = false;
@@ -28,74 +33,64 @@ public class AimState : NetworkBehaviour
     private const float minZoomDistance = 2.5f;
     private const float increaseSpeed = 0.5f;
 
-
-    private PlayerPickUp playerPickUp;
     private Animator anim;
-    private Camera scopeCamera;
+   
 
 
     public NetworkVariable<Vector3> AimPositionNetVar = new NetworkVariable<Vector3>(default,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
 
+        public NetworkVariable<bool> IsScopedNetVar = new NetworkVariable<bool>(default,
+        NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+
+
 
 
     private void Start()
     {
-        ScreenCenterPoint = new Vector2(Screen.width / 2, Screen.height / 2);
+        
 
         AimPositionNetVar.OnValueChanged += (Vector3 oldPos, Vector3 newPos) =>
         {
             AimPosition.position = newPos;
         };
-    
-        shootingPoint = null;
-        aimScope = null;
-        scopeCamera = null;
         aimImage.enabled = false;
+
+        if (!IsOwner) return;
+         
+        ScreenCenterPoint = new Vector2(Screen.width / 2, Screen.height / 2);
+    
+        scopeCamera.enabled = false;
 
     }
 
     public void Aim(GameObject weapon)
     {
-        if (IsOwner)
+       
+        if (!IsOwner) return;
+        Ray ray = playerCamera.ScreenPointToRay(ScreenCenterPoint);
+        RaycastHit hit;
+        // max value of the ray is 1000 
+        if (Physics.Raycast(ray, out hit, 1100, AimLayer)) 
         {
-     
-            Ray ray = playerCamera.ScreenPointToRay(ScreenCenterPoint);
-            RaycastHit hit;
-            // max value of the ray is 1000 
-            if (Physics.Raycast(ray, out hit, 3000, AimLayer)) 
-            {
-                Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
-
-                AimPositionNetVar.Value = hit.point;
-            
-            }
-
-            shootingPoint = weapon.transform.Find("sniperBody").Find("shootingPoint");
-            scopeCamera =  weapon.transform.Find("sniperBody").GetComponentInChildren<Camera>();
-            aimScope = weapon.transform.Find("sniperBody").Find("scopePoint");
-            // look just position
-            shootingPoint.LookAt(AimPosition);
-            scopeCamera.transform.LookAt(AimPosition);
-            Debug.DrawRay(shootingPoint.position, shootingPoint.forward * 100, Color.red);
-            PlayerAimState();
-            aimImage.enabled = isScoped;
+            Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
+            AimPositionNetVar.Value = hit.point;
         }
-        
+        Debug.DrawRay(shootingPoint.position, shootingPoint.forward * 100, Color.red);
+        PlayerAimState();
+        aimImage.enabled = true;
         
     }
 
     private void PlayerAimState() {
-
-        // if bottin 1 down
-        if (Input.GetMouseButtonDown(1))
-        {
-            isScoped = !isScoped;
-        }
-
+        
+        if (!IsOwner) return;
         // zoom in and out
-        if (isScoped){
+        if (IsScopedNetVar.Value){
+            
+            scopeCamera.enabled = true;
             // use mouse scroll to zoom in and out 
             if (Input.GetAxis("Mouse ScrollWheel") > 0f )
             {
@@ -105,19 +100,21 @@ public class AimState : NetworkBehaviour
             {
                if (scopeCamera.fieldOfView < maxZoomDistance) scopeCamera.fieldOfView += increaseSpeed;
             }
+        } else {
+            scopeCamera.enabled = false;
         }
-    }
 
-    private void UppdateAimPosition() {
-
+        if (Input.GetMouseButtonDown(1))
+        {
         
-    }
-    public bool IsScoped() {
-        return isScoped;
+        IsScopedNetVar.Value = !IsScopedNetVar.Value;
+        }
+
+
     }
 
-    public Transform GetScopePosition() {
-        return aimScope;
+    public bool IsScoped() {
+        return IsScopedNetVar.Value;
     }
 
 

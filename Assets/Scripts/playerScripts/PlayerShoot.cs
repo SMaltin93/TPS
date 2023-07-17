@@ -6,56 +6,45 @@ using Unity.Netcode;
 public class PlayerShoot : NetworkBehaviour
 {
     [SerializeField] private GameObject bulletPrefab;
-    // [SerializeField] private float bulletSpeed;
-   // [SerializeField] private float bulletDistance;
+    [SerializeField] private float ShootRate = 2f;
 
     // reference to the shootingpoint that is a child of the weapon
-    private Transform shootingPoint;
+    [SerializeField] private Transform shootingPoint;
 
-    private PlayerPickUp playerPickUp;
+    private PlayerState playerState;
 
     // reference to the particle system
-    private ParticleSystem muzzleFlash;
+    [SerializeField] private ParticleSystem muzzleFlash;
 
 
     
 
 
-    // start it with null 
-    private void Awake()
+    // // start it with null 
+    // private void Start()
+    // {
+    //     // shootingPoint = null;
+    //     // muzzleFlash = null;
+    //     playerState = GetComponent<PlayerState>();
+
+
+
+    // }
+
+    public void Shoot()
     {
-        shootingPoint = null;
-        muzzleFlash = null;
-        playerPickUp = GetComponent<PlayerPickUp>();
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-        if (!IsOwner) return;
-    
-        if (Input.GetMouseButtonDown(0) && playerPickUp.GrabbedWeapon.Value != 0) {
-            FireServerRpc(playerPickUp.GrabbedWeapon.Value);
-        } 
-        
+        FireServerRpc();
     }
     
     [ServerRpc]
-    public void FireServerRpc(ulong weaponId) 
+    public void FireServerRpc() 
     {
-        Debug.Log("FireServerRpc");
-        // Assign shootingPoint and muzzleFlash for the specific weapon
-        NetworkObject grabbedWeapon = NetworkManager.Singleton.SpawnManager.SpawnedObjects[weaponId];
-        GameObject weapon = grabbedWeapon.gameObject;
-        shootingPoint = weapon.transform.Find("sniperBody").Find("shootingPoint");
-        muzzleFlash = shootingPoint.GetComponentInChildren<ParticleSystem>();
 
         NetworkObject bullet = Instantiate(bulletPrefab,shootingPoint.position, shootingPoint.rotation).GetComponent<NetworkObject>();
         bullet.Spawn();
-
         bullet.GetComponent<BulletState>().BulletDirection.Value = shootingPoint.forward;
+
+        StartCoroutine(DestroyBullet(bullet));
 
         FireClientRpc();
     }
@@ -63,28 +52,20 @@ public class PlayerShoot : NetworkBehaviour
     [ClientRpc]
     public void FireClientRpc()
     {    
-        NetworkObject grabbedWeapon = NetworkManager.Singleton.SpawnManager.SpawnedObjects[playerPickUp.GrabbedWeapon.Value];
-        GameObject weapon = grabbedWeapon.gameObject;
-        shootingPoint = weapon.transform.Find("sniperBody").Find("shootingPoint");
+
         muzzleFlash = shootingPoint.GetComponentInChildren<ParticleSystem>();
         muzzleFlash.Play();
     
     }
 
-    
-    
-
-    // IEnumerator DestroyBulletAfterTime(NetworkObject bullet)
-    // {
-    //    yield return new WaitForSeconds(2);
-    
-    // // Ensure we're on the server before attempting to despawn the bullet
-    //    if (IsServer && bullet != null && NetworkManager.Singleton.SpawnManager.SpawnedObjects.ContainsKey(bullet.NetworkObjectId))
-    //     {
-    //         bullet.Despawn(true);
-    //     }
-    // }
-
+    IEnumerator DestroyBullet(NetworkObject bullet)
+    {
+        yield return new WaitForSeconds(ShootRate);
+        if (IsServer && bullet != null && NetworkManager.Singleton.SpawnManager.SpawnedObjects.ContainsKey(bullet.NetworkObjectId))
+        {
+            bullet.Despawn(true);
+        }
+    }
 
 
 
