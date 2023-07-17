@@ -38,5 +38,6 @@ public class SpawnWeapon : NetworkBehaviour
     {
         return new Vector3(Random.Range(-planXstart, planXstart), HeightFallFrom, Random.Range(-planZstart, planZstart));
     }
+    
 
 }

@@ -42,6 +42,10 @@ public class PlayerState : NetworkBehaviour
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
 
+    public NetworkVariable<bool> IsWeaponActive = new NetworkVariable<bool>(false,
+    NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+
 
     [SerializeField] private Rig constraintRig;
     
@@ -53,6 +57,15 @@ public class PlayerState : NetworkBehaviour
         {
             constraintRig.weight = newValue; 
         };
+
+        Sniper.gameObject.SetActive(IsWeaponActive.Value);
+
+        IsWeaponActive.OnValueChanged += (previousValue, newValue) =>
+        {
+            Sniper.gameObject.SetActive(newValue);
+        };
+
+        // desable visiblity of the sniper
  
         anim = GetComponent<Animator>();
 
@@ -94,6 +107,7 @@ public class PlayerState : NetworkBehaviour
 
     }
 
+
     private void PickUpWeapon()
     {
        
@@ -105,12 +119,21 @@ public class PlayerState : NetworkBehaviour
             {
                 Debug.Log("GrabbedWeapon: IS NULL");
                 isGrabbed = true;
+                StartCoroutine(WaitForAnimation());
                 anim.SetTrigger("pickUp");
                 anim.SetBool("isGrabbed", isGrabbed);
                 Aim = true;
-                SetAnimRig.Value = 1;
+                // set the sniper to be active
+                IsWeaponActive.Value = true;
+
             } 
         }
+    }
+
+    IEnumerator WaitForAnimation()
+    {
+        yield return new WaitForSeconds(1f);
+        SetAnimRig.Value = 1;
     }
 
 }

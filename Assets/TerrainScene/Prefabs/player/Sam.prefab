@@ -1361,7 +1361,7 @@ GameObject:
   - component: {fileID: 7798879242681594713}
   m_Layer: 0
   m_Name: Sam
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1424,7 +1424,7 @@ Rigidbody:
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 2
+  m_CollisionDetection: 1
 --- !u!143 &9060290514347559872
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1542,6 +1542,8 @@ MonoBehaviour:
   Sniper: {fileID: 5959239725001649283}
   SetAnimRig:
     m_InternalValue: 0
+  IsWeaponActive:
+    m_InternalValue: 0
   constraintRig: {fileID: 7273036465116660924}
 --- !u!114 &8379472797057278237
 MonoBehaviour:
@@ -1568,6 +1570,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 7766542696213635802, guid: cf70f580d72f66943bbd135cfa8c17f3, type: 3}
+  ShootRate: 2
   shootingPoint: {fileID: 5959239724253456792}
   muzzleFlash: {fileID: 5959239724920106433}
 --- !u!114 &3939937472026444326

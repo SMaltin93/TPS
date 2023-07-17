@@ -8,10 +8,19 @@ using Unity.Netcode;
 public class BulletState : NetworkBehaviour
 {
 
-    [SerializeField] private float bulletSpeed = 50f;
+    [SerializeField] private float bulletSpeed ;
 
-public NetworkVariable<Vector3> BulletDirection = new NetworkVariable<Vector3>(default,
+    private Rigidbody rb ;
+
+    public NetworkVariable<Vector3> BulletDirection = new NetworkVariable<Vector3>(default,
     NetworkVariableReadPermission.Owner, NetworkVariableWritePermission.Server);
+
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
 
     public override void OnNetworkSpawn()
     {
@@ -20,48 +29,56 @@ public NetworkVariable<Vector3> BulletDirection = new NetworkVariable<Vector3>(d
     }
 
 
-    // spawn the bullet on the clients
+    void FixedUpdate()
+    {
+        StartCoroutine(PredictBullet());
+    }
 
 
+    IEnumerator PredictBullet()
+    {
+       Vector3 predictedPos = transform.position + rb.velocity * Time.fixedDeltaTime;
 
+       RaycastHit hit;
+       int layerMask =~ LayerMask.GetMask("Bullet");
+       Debug.DrawRay(transform.position, predictedPos, Color.red);
 
-    // void Start()
-    // {
-    //     // destroy the bullet after 5 seconds
-    //     if (IsServer)
-    //     {
-    //         Destroy(this.gameObject, 5f);
-    //     }
-    // }
+         if (Physics.Linecast(transform.position, predictedPos, out hit, layerMask))
+         {
+            transform.position = hit.point;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            rb.isKinematic = true;
+            yield return 0;
+            OnTriggerEnterFixed(hit.collider);
+         }
+    }
 
-    // void FixedUpdate()
-    // {
-    //     if (IsServer)
-    //     {
-    //         // move the bullet forward
-    //         GetComponent<Rigidbody>().velocity = BulletVelocity.Value;
-    //     }
-    // }
+   void OnTriggerEnterFixed(Collider other)
+    {
+        // Log the name of the object the bullet collided with
+        Debug.Log("Bullet collided with: " + other.gameObject.name);
 
-    // private void OnCollisionEnter(Collision other)
-    // {
-    //     if (IsServer)
-    //     {
-    //         if (NetworkObject != null && NetworkObject.IsSpawned)
-    //         {
-    //             NetworkObject.Despawn(true);
-    //         }
+        // get the networkID if it a player
 
-    //         // The bullet object will be automatically destroyed on the clients when it's despawned on the server
-    //         Destroy(this.gameObject);
-    //     }
+        if (other.gameObject.CompareTag("Player"))
+        { 
 
-    //     FireClientRpc();
-    // }
+            NetworkObject networkObject = other.gameObject.GetComponent<NetworkObject>();
+            ulong playerNetworkID = networkObject.NetworkObjectId;
+         
+              Debug.Log("player id is " + playerNetworkID);
+        }
 
-    // [ClientRpc]
-    // public void FireClientRpc()
-    // {
-    //     Debug.Log("Bullet collided with " + gameObject.name);
-    // }
+        // destroy bullet if it collides whatever it collid with
+        if (IsServer)
+        {
+            DestroyObjectServerRpc();
+        }
+    }
+
+    [ServerRpc]
+    void DestroyObjectServerRpc()
+    {
+        Destroy(gameObject);
+    }
 }
