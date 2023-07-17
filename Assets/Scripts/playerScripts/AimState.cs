@@ -73,11 +73,14 @@ public class AimState : NetworkBehaviour
         Ray ray = playerCamera.ScreenPointToRay(ScreenCenterPoint);
         RaycastHit hit;
         // max value of the ray is 1000 
-        if (Physics.Raycast(ray, out hit, 1100, AimLayer)) 
+        if (Physics.Raycast(ray, out hit, 2500, AimLayer)) 
         {
             Debug.DrawRay(ray.origin, ray.direction * 100, Color.red);
             AimPositionNetVar.Value = hit.point;
         }
+
+        AimPosition.LookAt(AimPositionNetVar.Value);
+        
         Debug.DrawRay(shootingPoint.position, shootingPoint.forward * 100, Color.red);
         PlayerAimState();
         aimImage.enabled = true;

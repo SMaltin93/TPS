@@ -17,19 +17,7 @@ public class PlayerShoot : NetworkBehaviour
     [SerializeField] private ParticleSystem muzzleFlash;
 
 
-    
 
-
-    // // start it with null 
-    // private void Start()
-    // {
-    //     // shootingPoint = null;
-    //     // muzzleFlash = null;
-    //     playerState = GetComponent<PlayerState>();
-
-
-
-    // }
 
     public void Shoot()
     {
