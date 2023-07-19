@@ -7,6 +7,10 @@ TagManager:
   - Weapon
   - body
   - Bullet
+  - PlayerHead
+  - PlayerBody
+  - PlayerArm
+  - PlayerLeg
   layers:
   - Default
   - TransparentFX

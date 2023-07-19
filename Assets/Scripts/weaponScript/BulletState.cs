@@ -19,6 +19,8 @@ public class BulletState : NetworkBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+
     }
 
 
@@ -31,6 +33,7 @@ public class BulletState : NetworkBehaviour
 
     void FixedUpdate()
     {
+        if(!IsServer) return;
         StartCoroutine(PredictBullet());
     }
 
@@ -40,7 +43,10 @@ public class BulletState : NetworkBehaviour
        Vector3 predictedPos = transform.position + rb.velocity * Time.fixedDeltaTime;
 
        RaycastHit hit;
-       int layerMask =~ LayerMask.GetMask("Bullet");
+       int layerMask =~ LayerMask.GetMask("Bullet") | ~LayerMask.GetMask("Player");
+   
+
+
        Debug.DrawRay(transform.position, predictedPos, Color.red);
 
          if (Physics.Linecast(transform.position, predictedPos, out hit, layerMask))
@@ -49,24 +55,36 @@ public class BulletState : NetworkBehaviour
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             rb.isKinematic = true;
             yield return 0;
+            Debug.Log("hit" + hit.collider.gameObject.name);
             OnTriggerEnterFixed(hit.collider);
          }
     }
 
    void OnTriggerEnterFixed(Collider other)
     {
-        // Log the name of the object the bullet collided with
-        Debug.Log("Bullet collided with: " + other.gameObject.name);
+        // get the main parent of the object
+        GameObject mainParent = other.gameObject.transform.root.gameObject;
+        PlayerHealth playerHealth = mainParent.GetComponent<PlayerHealth>();
+      
 
         // get the networkID if it a player
 
-        if (other.gameObject.CompareTag("Player"))
-        { 
+        if (other.gameObject.CompareTag("PlayerHead") || other.gameObject.CompareTag("PlayerBody")
+        || other.gameObject.CompareTag("PlayerLeg") || other.gameObject.CompareTag("PlayerArm")) 
 
-            NetworkObject networkObject = other.gameObject.GetComponent<NetworkObject>();
+        {
+
+            NetworkObject networkObject = mainParent.GetComponent<NetworkObject>();
             ulong playerNetworkID = networkObject.NetworkObjectId;
-         
-              Debug.Log("player id is " + playerNetworkID);
+
+            string playerTag = other.gameObject.tag;
+
+            if (IsServer) {
+                TakeDamageServerRpc(playerNetworkID, playerTag);
+            }
+            // player hited on tag 
+            Debug.Log("player get hited on " + playerTag);
+            Debug.Log("player id is " + playerNetworkID);
         }
 
         // destroy bullet if it collides whatever it collid with
@@ -80,5 +98,16 @@ public class BulletState : NetworkBehaviour
     void DestroyObjectServerRpc()
     {
         Destroy(gameObject);
+    }
+
+    [ServerRpc]
+    public void TakeDamageServerRpc(ulong playerNetworkID, string playerTag)
+    {
+        // Retrieve the network object by its network id
+        GameObject player = NetworkManager.Singleton.SpawnManager.SpawnedObjects[playerNetworkID].gameObject;
+        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+        playerHealth.TakeDamage(playerTag);
+        
+    
     }
 }

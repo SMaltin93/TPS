@@ -78,16 +78,12 @@ public class PlayerState : NetworkBehaviour
     }
 
 
-
-   
-
     private void Update()
     {
         if (!IsOwner) return;
         if (Input.GetKey(KeyCode.E) && isGrabbed == false)
         {
             PickUpWeapon();
-            
         }
 
         if (isGrabbed )
