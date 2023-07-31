@@ -48,12 +48,13 @@ public class PlayerHealth : NetworkBehaviour
             {
                 currentHealth.Value = maxHealth;
             }
+           // playerUI.SetActive(true);
                 
 
-        if (IsOwner)
+        if (IsLocalPlayer)
         {
             playerUI.SetActive(true);
-        } 
+        }
         else
         {
             playerUI.SetActive(false);

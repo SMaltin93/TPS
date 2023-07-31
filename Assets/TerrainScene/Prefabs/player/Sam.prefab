@@ -872,7 +872,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &9058955405139471291
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1889,7 +1889,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   playerCamera: {fileID: 3971390225822946413}
-  aimImage: {fileID: 4912102954586384805}
+  aimImage: {fileID: 7841442373833787450}
   scopeCamera: {fileID: 7771601533806242362}
   shootingPoint: {fileID: 5959239724253456792}
   AimPositionNetVar:
@@ -3972,7 +3972,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8530135429089911901}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -4415,3 +4415,14 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 3883370535321174278, guid: acd51ad0f6e47094c847125a5cac31f2, type: 3}
   m_PrefabInstance: {fileID: 6791083567476599612}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7841442373833787450 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3669484598936494854, guid: acd51ad0f6e47094c847125a5cac31f2, type: 3}
+  m_PrefabInstance: {fileID: 6791083567476599612}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
