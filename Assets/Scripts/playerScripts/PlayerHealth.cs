@@ -44,10 +44,10 @@ public class PlayerHealth : NetworkBehaviour
     void Start()
     {
         // if is owener activate PlayerUI canvas 
-        if (IsServer)
-            {
+      //  if (IsServer)
+       //     {
                 currentHealth.Value = maxHealth;
-            }
+           // }
            // playerUI.SetActive(true);
                 
 
