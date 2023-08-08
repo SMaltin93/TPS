@@ -18,11 +18,14 @@ public class PlayerHealth : NetworkBehaviour
 
 
 
-    NetworkVariable<float> currentHealth = new NetworkVariable<float>(default,
+    NetworkVariable<float> currentHealth = new NetworkVariable<float>(150f,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+
+    private float playerHealth;
+
     private float chipSpeed = 5f;
-    private float lerpTime;
+    private float lerpTime = 0f;
 
     [SerializeField] private GameObject playerUI;
 
@@ -30,10 +33,10 @@ public class PlayerHealth : NetworkBehaviour
     [SerializeField] private Image backHealthBar;
 
     // define the damage part 
-    [SerializeField] private float BodyDamage = 10f;
+    [SerializeField] private float BodyDamage = 20f;
     [SerializeField] private float HeadDamage = 50f;
-    [SerializeField] private float LegDamage = 5f;
-    [SerializeField] private float ArmDamage = 5f;
+    [SerializeField] private float LegDamage = 10f;
+    [SerializeField] private float ArmDamage = 10f;
 
 
 
@@ -43,13 +46,14 @@ public class PlayerHealth : NetworkBehaviour
 
     void Start()
     {
-        // if is owener activate PlayerUI canvas 
-      //  if (IsServer)
-       //     {
-                currentHealth.Value = maxHealth;
-           // }
-           // playerUI.SetActive(true);
-                
+
+       if (IsServer) currentHealth.Value = maxHealth;
+
+       currentHealth.OnValueChanged += (float oldHealth, float newHealth) =>
+       {
+           lerpTime = 0;
+       };
+
 
         if (IsLocalPlayer)
         {
@@ -67,10 +71,12 @@ public class PlayerHealth : NetworkBehaviour
 
         if (!IsOwner) return;
 
-        currentHealth.Value = Mathf.Clamp(currentHealth.Value, 0, maxHealth);
+       if (IsServer) currentHealth.Value  = Mathf.Clamp(currentHealth.Value , 0, maxHealth);
+
+        
         UpdateHealthBar();
 
-        Debug.Log("current health: " + currentHealth.Value);
+        //Debug.Log("playerHealth: " + playerHealth);
         
     }
 
@@ -99,7 +105,7 @@ public class PlayerHealth : NetworkBehaviour
         if (!IsServer) return;
 
         // switch case for body part
-        lerpTime = 0;
+      
         switch (bodyPart)
         {
             case "PlayerHead":
@@ -130,7 +136,10 @@ public class PlayerHealth : NetworkBehaviour
 
     }
 
-    // handel death¨
+    public float GetHealth()
+    {
+        return currentHealth.Value;
+    }
 
 
 

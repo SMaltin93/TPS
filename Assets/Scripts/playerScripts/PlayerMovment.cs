@@ -64,8 +64,13 @@ public class PlayerMovment :  NetworkBehaviour
     private void Update()
     {
         if (!IsOwner) return;
-        InputPlayerState();
-        Move();
+
+        // if not dead
+        if (!anim.GetBool("isDead") ){
+            InputPlayerState();
+            Move();
+        }
+        
     }
 
     private void Move()

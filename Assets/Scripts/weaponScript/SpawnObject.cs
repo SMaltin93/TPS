@@ -4,12 +4,12 @@ using UnityEngine;
 // netcode
 using Unity.Netcode;
 
-public class SpawnWeapon : NetworkBehaviour
+public class SpawnObject : NetworkBehaviour
 {
 
- // refernce to the weapon prefab
+ // refernce to the objectToSpawn prefab
 
-    [SerializeField] private GameObject weaponPrefab;
+    [SerializeField] private GameObject objectPrefab;
 
     [SerializeField] private int planXstart;
     [SerializeField] private int planZstart;
@@ -27,9 +27,9 @@ public class SpawnWeapon : NetworkBehaviour
         {
             for(int i = 0; i < numOfbjects; i++)
             {
-               NetworkObject weapon = Instantiate(weaponPrefab, GetRandomPosition(), Quaternion.identity).GetComponent<NetworkObject>();
-               spawnedObjects.Add(weapon);
-               weapon.Spawn();
+               NetworkObject objectToSpawn = Instantiate(objectPrefab, GetRandomPosition(), Quaternion.identity).GetComponent<NetworkObject>();
+               spawnedObjects.Add(objectToSpawn);
+               objectToSpawn.Spawn();
             }
         }
     }

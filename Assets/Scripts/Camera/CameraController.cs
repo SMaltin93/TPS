@@ -23,6 +23,8 @@ public class CameraController : NetworkBehaviour
     // awack function
     private float orginatxPos;
 
+    private Vector3 orginalPos;
+
     private AimState aimState;
 
 
@@ -39,6 +41,7 @@ public class CameraController : NetworkBehaviour
             parent = transform.parent;
             Cursor.lockState = CursorLockMode.Locked;
             orginatxPos = playerCamera.transform.localPosition.x;
+            orginalPos = playerCamera.transform.localPosition;
             playerCamera.enabled = true;  // Enable camera for local player
         }
         else
@@ -75,14 +78,15 @@ public class CameraController : NetworkBehaviour
         float offsetY = ( radius * Mathf.Sin(angleInRadians) );
         float offsetZ = ( radius * Mathf.Cos(angleInRadians) );
         // is scoped 
-        if (aimState.IsScoped()) {;
+        if (aimState.IsScoped()) {
             float distance = Mathf.Sin(Time.timeSinceLevelLoad)/1000f;
             float distanceX = Mathf.Cos(Time.timeSinceLevelLoad)/1000f;
             transform.position = Vector3.Lerp(transform.position, ScopePosition.position + new Vector3(distanceX, distance, 0), Time.deltaTime * 10f);
 
         
         } else {
-            transform.localPosition = new Vector3(orginatxPos, offsetY , -1*(offsetZ + 2) ) ;
+            //transform.localPosition = new Vector3(orginatxPos, offsetY , -1*(offsetZ + 2) ) ;
+            transform.localPosition = new Vector3(orginalPos.x, offsetY , orginalPos.z ) ;
         }
 
     }

@@ -81,6 +81,13 @@ public class PlayerState : NetworkBehaviour
     private void Update()
     {
         if (!IsOwner) return;
+        // handel death 
+        if (anim.GetBool("isDead")) {
+            SetAnimRig.Value = 0;
+            IsWeaponActive.Value = false;
+            return;
+        } 
+
         if (Input.GetKey(KeyCode.E) && isGrabbed == false)
         {
             PickUpWeapon();
