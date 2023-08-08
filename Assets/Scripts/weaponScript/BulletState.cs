@@ -19,8 +19,6 @@ public class BulletState : NetworkBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-
-
     }
 
 
@@ -55,7 +53,7 @@ public class BulletState : NetworkBehaviour
             rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             rb.isKinematic = true;
             yield return 0;
-            Debug.Log("hit" + hit.collider.gameObject.name);
+           // Debug.Log("hit" + hit.collider.gameObject.name);
             OnTriggerEnterFixed(hit.collider);
          }
     }

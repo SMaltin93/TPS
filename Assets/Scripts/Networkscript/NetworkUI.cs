@@ -14,8 +14,11 @@ public class NetworkUI : NetworkBehaviour
     [SerializeField] private Button clientButton;
 
     /// to spawn the sniper
-    [SerializeField] private GameObject SpawnPoint;
-    private SpawnWeapon spawnWeapon;
+    [SerializeField] private GameObject SpawnPointWeapon;
+    [SerializeField] private GameObject SpawnPointBodies;
+    
+    private SpawnObject spawnWeapon;
+    private SpawnObject spawnBodies;
     // 
     [SerializeField] private TextMeshProUGUI  playerCountText;
 
@@ -27,7 +30,8 @@ public class NetworkUI : NetworkBehaviour
 
     void Awake()
     {
-        spawnWeapon = SpawnPoint.GetComponent<SpawnWeapon>();
+        spawnWeapon = SpawnPointWeapon.GetComponent<SpawnObject>();
+        spawnBodies = SpawnPointBodies.GetComponent<SpawnObject>();
         
         hostButton.onClick.AddListener(
         () =>{
@@ -48,7 +52,8 @@ public class NetworkUI : NetworkBehaviour
 
         NetworkManager.Singleton.OnServerStarted +=  () =>
         {
-            spawnWeapon.SpawnedObjects();  
+            spawnWeapon.SpawnedObjects(); 
+            spawnBodies.SpawnedObjects();
         };
 
 

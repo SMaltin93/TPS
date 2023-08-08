@@ -1555,6 +1555,7 @@ GameObject:
   - component: {fileID: 7236640851400507406}
   - component: {fileID: 7798879242681594713}
   - component: {fileID: 8344394633778209990}
+  - component: {fileID: 7472591204320020764}
   m_Layer: 11
   m_Name: Sam
   m_TagString: Player
@@ -1717,6 +1718,20 @@ MonoBehaviour:
     TransitionDuration: 0.24999999
     TriggerNameHash: -1481439722
     TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 646380074
+    DestinationState: -1378436683
+    TransitionDuration: 0.25
+    TriggerNameHash: 2011381507
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: -1064831139
+    DestinationState: -645137678
+    TransitionDuration: 0.25
+    TriggerNameHash: 2011381507
+    TransitionIndex: 0
   m_Animator: {fileID: 5585529107148327350}
 --- !u!114 &1742896634
 MonoBehaviour:
@@ -1916,6 +1931,18 @@ MonoBehaviour:
   HeadDamage: 50
   LegDamage: 5
   ArmDamage: 5
+--- !u!114 &7472591204320020764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3141531704960836452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d7487dc0b9837f459e769ae7bdc8012, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3150290606539564143
 GameObject:
   m_ObjectHideFlags: 0
@@ -2809,7 +2836,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8624279481089306161}
   - component: {fileID: 8719347901190456368}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: mixamorig:Spine1
   m_TagString: PlayerBody
   m_Icon: {fileID: 0}
@@ -3244,7 +3271,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2990113710702657976}
   - component: {fileID: 2656033032877232749}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: mixamorig:Head
   m_TagString: PlayerHead
   m_Icon: {fileID: 0}
@@ -4269,15 +4296,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4395521193004485654, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.6
+      value: 0.36
       objectReference: {fileID: 0}
     - target: {fileID: 4395521193004485654, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 1.95
       objectReference: {fileID: 0}
     - target: {fileID: 4395521193004485654, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.2
+      value: -1.83
       objectReference: {fileID: 0}
     - target: {fileID: 4395521193004485654, guid: e88cc322fade0fb49882f8d523d81ba3, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4429,6 +4456,14 @@ PrefabInstance:
     - target: {fileID: 5812835881203133356, guid: acd51ad0f6e47094c847125a5cac31f2, type: 3}
       propertyPath: m_Layer
       value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8507099739323427824, guid: acd51ad0f6e47094c847125a5cac31f2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.009
+      objectReference: {fileID: 0}
+    - target: {fileID: 8507099739323427824, guid: acd51ad0f6e47094c847125a5cac31f2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.0151
       objectReference: {fileID: 0}
     - target: {fileID: 9153711137213531277, guid: acd51ad0f6e47094c847125a5cac31f2, type: 3}
       propertyPath: m_Layer
