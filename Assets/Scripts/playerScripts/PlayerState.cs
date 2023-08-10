@@ -86,7 +86,7 @@ public class PlayerState : NetworkBehaviour
             SetAnimRig.Value = 0;
             IsWeaponActive.Value = false;
             return;
-        } 
+        }
 
         if (Input.GetKey(KeyCode.E) && isGrabbed == false)
         {
@@ -95,6 +95,8 @@ public class PlayerState : NetworkBehaviour
 
         if (isGrabbed )
         {
+            SetAnimRig.Value = 1;
+            IsWeaponActive.Value = true;
             if (Aim)
             {
                 aimState.Aim(Sniper.gameObject);

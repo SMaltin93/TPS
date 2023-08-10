@@ -1658,6 +1658,8 @@ MonoBehaviour:
   runSpeed: 8
   backSpeed: 1.5
   sideSpeed: 1.5
+  StartXBetween: 300
+  StartZBetween: -300
   gravity: -20
   groundDistance: 0.4
   groundMask:

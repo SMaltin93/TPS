@@ -16,6 +16,10 @@ public class PlayerMovment :  NetworkBehaviour
     [SerializeField] private float sideSpeed;
 
 
+    [SerializeField] private float StartXBetween;
+    [SerializeField] private float StartZBetween;
+
+
     private Vector3 moveDirection;
     private Vector3 velocity; // for gravity
 
@@ -45,6 +49,16 @@ public class PlayerMovment :  NetworkBehaviour
     private Camera playerCamera;
     // animationfor grabed weapon
     private bool isWeaponed; 
+
+
+
+    public override void OnNetworkSpawn()
+    {
+        if(!IsOwner) return;
+        base.OnNetworkSpawn();
+        // set the player position
+        transform.position = RandomPosition();
+    }
 
 
     // make character controller readable of every one
@@ -273,6 +287,18 @@ public class PlayerMovment :  NetworkBehaviour
         jump =  (Input.GetKey(KeyCode.Space) && run) || (Input.GetKey(KeyCode.Space) && walkForward) || (Input.GetKey(KeyCode.Space) && idle);
         //
         isWeaponed = anim.GetBool("isGrabbed");
+    }
+
+
+    // start random position function
+
+    private Vector3 RandomPosition()
+    {
+        float x = Random.Range(-StartXBetween, StartXBetween);
+        float y = Random.Range(0, 1);
+        float z = Random.Range(-StartZBetween, StartZBetween);
+
+        return new Vector3(x, y, z);
     }
 
 }
