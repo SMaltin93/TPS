@@ -11,17 +11,25 @@ public class PlayerShoot : NetworkBehaviour
     // reference to the shootingpoint that is a child of the weapon
     [SerializeField] private Transform shootingPoint;
 
-    private PlayerState playerState;
-
     // reference to the particle system
     [SerializeField] private ParticleSystem muzzleFlash;
 
 
+    [SerializeField] private AudioClip _shoot;
+    [SerializeField] private AudioSource _audioSource;
+
+
+    private PlayerSound _playerSound;
 
 
     public void Shoot()
     {
         FireServerRpc();
+    }
+
+    private void Start()
+    {
+        _playerSound = GetComponent<PlayerSound>();
     }
     
     [ServerRpc]
@@ -43,6 +51,8 @@ public class PlayerShoot : NetworkBehaviour
 
         muzzleFlash = shootingPoint.GetComponentInChildren<ParticleSystem>();
         muzzleFlash.Play();
+        playerShootSound();
+
     
     }
 
@@ -53,6 +63,15 @@ public class PlayerShoot : NetworkBehaviour
         {
             bullet.Despawn(true);
         }
+    }
+
+
+    // do the shoot sound just on the local player
+    private void playerShootSound()
+    {
+       
+        this._audioSource.PlayOneShot(_shoot);
+        
     }
 
 
