@@ -59,6 +59,12 @@ public class NetworkUI : NetworkBehaviour
 
         if (!IsServer) return;
         playersNum.Value = NetworkManager.Singleton.ConnectedClients.Count;
+
+        // quit the game by pressing the esc 3 seconds
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Invoke("QuitGame", 3f);
+        }
     }
 
 
@@ -113,5 +119,27 @@ public class NetworkUI : NetworkBehaviour
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData(ClientIpAdress, port);
         NetworkManager.Singleton.StartClient();
     }
+
+
+    // restart the game by pressing the j key 3 seconds
+    public void QuitGame() {
+        Debug.Log("quit game");
+        Application.Quit();
+        UnityEditor.EditorApplication.isPlaying = false;
+    }
+
+    // dont crash the game when the player press escape
+
+   private void OnApplicationQuit()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsClient)
+            {
+                NetworkManager.Shutdown();
+            }
+        }
+    }
+
 
 }
