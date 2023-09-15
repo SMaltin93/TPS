@@ -125,7 +125,6 @@ public class NetworkUI : NetworkBehaviour
     public void QuitGame() {
         Debug.Log("quit game");
         Application.Quit();
-        UnityEditor.EditorApplication.isPlaying = false;
     }
 
     // dont crash the game when the player press escape
