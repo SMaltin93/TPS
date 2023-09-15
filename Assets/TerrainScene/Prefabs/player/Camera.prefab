@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4395521193004485654}
   - component: {fileID: 2735823871828483057}
-  - component: {fileID: 3130034653870917229}
   - component: {fileID: 542589171092454315}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -57,9 +56,9 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 1000
-  field of view: 60
+  field of view: 50
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -77,14 +76,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &3130034653870917229
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6061831176357070852}
-  m_Enabled: 1
 --- !u!114 &542589171092454315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,4 +89,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSensitivity: 151.6
-  playerCamera: {fileID: 0}
+  ScopePosition: {fileID: 0}

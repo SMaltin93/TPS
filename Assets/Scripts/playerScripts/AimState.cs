@@ -30,8 +30,8 @@ public class AimState : NetworkBehaviour
 
     private bool isScoped = false;
     private const float maxZoomDistance = 27f;
-    private const float minZoomDistance = 2.5f;
-    private const float increaseSpeed = 0.5f;
+    private const float minZoomDistance = 3f;
+    private const float increaseSpeed = 3f;
 
     private Animator anim;
    

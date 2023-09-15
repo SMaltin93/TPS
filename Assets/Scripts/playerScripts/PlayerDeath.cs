@@ -17,6 +17,10 @@ public class PlayerDeath : NetworkBehaviour
     NetworkVariable<bool> fakeDeath = new NetworkVariable<bool>(false,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
+
+    private PlayerSound _playerSound;
+    private bool playTheSoundOnce = true; 
+
     
 
     void Start()
@@ -26,6 +30,8 @@ public class PlayerDeath : NetworkBehaviour
         animator = GetComponent<Animator>();
 
         animator.SetBool("isDead", false);
+
+        _playerSound = GetComponent<PlayerSound>();
 
     }
 
@@ -38,8 +44,10 @@ public class PlayerDeath : NetworkBehaviour
 
          if (thisHealth <= 0)
          {
-             UpdateDeathState(false, true);
-             animator.SetBool("isDead", isDead.Value);
+            UpdateDeathState(false, true);
+            animator.SetBool("isDead", isDead.Value);
+            playDeathSound(isDead.Value);
+
          }
 
         // if typ k is pressed and is dead respawn
@@ -69,6 +77,15 @@ public class PlayerDeath : NetworkBehaviour
     {
         isDead.Value = real;
         fakeDeath.Value = fake;
+    }
+
+    private void playDeathSound(bool isDead) {
+        
+        if (playTheSoundOnce) {
+            _playerSound.PlayDeath();
+            playTheSoundOnce = !isDead;
+        }
+        
     }
 
 }

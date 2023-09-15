@@ -18,7 +18,7 @@ public class PlayerHealth : NetworkBehaviour
 
 
 
-    NetworkVariable<float> currentHealth = new NetworkVariable<float>(150f,
+    public NetworkVariable<float> currentHealth = new NetworkVariable<float>(150f,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
 
@@ -33,14 +33,13 @@ public class PlayerHealth : NetworkBehaviour
     [SerializeField] private Image backHealthBar;
 
     // define the damage part 
-    [SerializeField] private float BodyDamage = 20f;
-    [SerializeField] private float HeadDamage = 50f;
-    [SerializeField] private float LegDamage = 10f;
-    [SerializeField] private float ArmDamage = 10f;
+    [SerializeField] private float BodyDamage = 30f;
+    [SerializeField] private float HeadDamage = 74f;
+    [SerializeField] private float LegDamage = 20f;
+    [SerializeField] private float ArmDamage = 20f;
 
 
-
-
+    // PlayerSound hit sound 
 
 
 
@@ -63,6 +62,7 @@ public class PlayerHealth : NetworkBehaviour
         {
             playerUI.SetActive(false);
         }
+
     }
 
     // Update is called once per frame
@@ -84,6 +84,8 @@ public class PlayerHealth : NetworkBehaviour
     {
 
         if (!IsOwner) return;
+
+        
         float fillFront = frontHealthBar.fillAmount;
         float fillBack = backHealthBar.fillAmount;
 
@@ -103,9 +105,7 @@ public class PlayerHealth : NetworkBehaviour
     public void TakeDamage(string bodyPart)
     {
         if (!IsServer) return;
-
         // switch case for body part
-      
         switch (bodyPart)
         {
             case "PlayerHead":
@@ -140,6 +140,7 @@ public class PlayerHealth : NetworkBehaviour
     {
         return currentHealth.Value;
     }
+
 
 
 
