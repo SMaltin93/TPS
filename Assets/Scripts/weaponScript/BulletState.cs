@@ -25,7 +25,9 @@ public class BulletState : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-       GetComponent<Rigidbody>().velocity = this.transform.forward * bulletSpeed;
+        // add force to the bullet
+        //= this.transform.forward * bulletSpeed;
+       GetComponent<Rigidbody>().AddForce(this.transform.forward  * bulletSpeed, ForceMode.Impulse);
     }
 
 
