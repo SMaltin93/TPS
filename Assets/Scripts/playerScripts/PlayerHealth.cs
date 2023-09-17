@@ -10,16 +10,15 @@ using UnityEngine.UI;
 public class PlayerHealth : NetworkBehaviour
 {
 
-
-    
-    
-
     [SerializeField] private float maxHealth;
+
 
 
 
     public NetworkVariable<float> currentHealth = new NetworkVariable<float>(150f,
         NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+       
 
 
     private float playerHealth;
@@ -33,10 +32,10 @@ public class PlayerHealth : NetworkBehaviour
     [SerializeField] private Image backHealthBar;
 
     // define the damage part 
-    [SerializeField] private float BodyDamage = 30f;
+    [SerializeField] private float BodyDamage = 29f;
     [SerializeField] private float HeadDamage = 74f;
-    [SerializeField] private float LegDamage = 20f;
-    [SerializeField] private float ArmDamage = 20f;
+    [SerializeField] private float LegDamage = 19f;
+    [SerializeField] private float ArmDamage = 19f;
 
 
     // PlayerSound hit sound 
@@ -69,11 +68,10 @@ public class PlayerHealth : NetworkBehaviour
     void Update()
     {
 
-        if (!IsOwner) return;
-
-       if (IsServer) currentHealth.Value  = Mathf.Clamp(currentHealth.Value , 0, maxHealth);
-
-        
+       if (!IsOwner) return;
+       if (IsServer) {
+            currentHealth.Value  = Mathf.Clamp(currentHealth.Value , -74f, maxHealth);
+        } 
         UpdateHealthBar();
 
         //Debug.Log("playerHealth: " + playerHealth);
@@ -97,9 +95,23 @@ public class PlayerHealth : NetworkBehaviour
             backHealthBar.color = Color.red;
             lerpTime += Time.deltaTime;
             float precentComplete = lerpTime / chipSpeed;
+            precentComplete = precentComplete * precentComplete; 
             backHealthBar.fillAmount = Mathf.Lerp(fillBack, healthPercent, precentComplete);
         }
-      
+
+        if (fillFront < healthPercent)
+        {
+           backHealthBar.color = Color.green;
+           backHealthBar.fillAmount = healthPercent;
+           lerpTime += Time.deltaTime;
+           float precentComplete = lerpTime / chipSpeed;
+            precentComplete = precentComplete * precentComplete;
+           frontHealthBar.fillAmount = Mathf.Lerp(fillFront, backHealthBar.fillAmount, precentComplete);
+
+        }
+
+        
+    
     }
 
     public void TakeDamage(string bodyPart)
@@ -128,17 +140,20 @@ public class PlayerHealth : NetworkBehaviour
 
     }
 
-    public void Heal(float healAmount)
+    public void RevivePlayer()
     {
-        if (!IsOwner) return;
-        currentHealth.Value += healAmount;
-        lerpTime = 0;
-
+        if (!IsServer) return;
+        currentHealth.Value = maxHealth;
     }
 
     public float GetHealth()
     {
         return currentHealth.Value;
+    }
+
+    public float GetMaxHealth()
+    {
+        return maxHealth;
     }
 
 

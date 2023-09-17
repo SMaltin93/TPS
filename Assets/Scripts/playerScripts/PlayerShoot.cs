@@ -58,8 +58,9 @@ public class PlayerShoot : NetworkBehaviour
 
     IEnumerator DestroyBullet(NetworkObject bullet)
     {
+        if (bullet == null) yield break;
         yield return new WaitForSeconds(ShootRate);
-        if (IsServer && bullet != null && NetworkManager.Singleton.SpawnManager.SpawnedObjects.ContainsKey(bullet.NetworkObjectId))
+        if (IsServer && NetworkManager.Singleton.SpawnManager.SpawnedObjects.ContainsKey(bullet.NetworkObjectId))
         {
             bullet.Despawn(true);
         }
@@ -73,6 +74,7 @@ public class PlayerShoot : NetworkBehaviour
         this._audioSource.PlayOneShot(_shoot);
         
     }
+
 
 
 

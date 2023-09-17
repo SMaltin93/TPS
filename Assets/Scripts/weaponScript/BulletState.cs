@@ -10,7 +10,7 @@ public class BulletState : NetworkBehaviour
 
     [SerializeField] private float bulletSpeed ;
 
-    private Rigidbody rb ;
+     private Rigidbody rb ;
 
     public NetworkVariable<Vector3> BulletDirection = new NetworkVariable<Vector3>(default,
     NetworkVariableReadPermission.Owner, NetworkVariableWritePermission.Server);
