@@ -40,7 +40,11 @@ public class PlayerShoot : NetworkBehaviour
         bullet.Spawn();
         bullet.GetComponent<BulletState>().BulletDirection.Value = shootingPoint.forward;
 
-        StartCoroutine(DestroyBullet(bullet));
+        // if it exists, destroy the bullet after 2 seconds
+        if (bullet != null)
+        {
+            StartCoroutine(DestroyBullet(bullet));
+        }
 
         FireClientRpc();
     }
@@ -60,7 +64,7 @@ public class PlayerShoot : NetworkBehaviour
     {
         if (bullet == null) yield break;
         yield return new WaitForSeconds(ShootRate);
-        if (IsServer && NetworkManager.Singleton.SpawnManager.SpawnedObjects.ContainsKey(bullet.NetworkObjectId))
+        if (IsServer && bullet != null && NetworkManager.Singleton.SpawnManager.SpawnedObjects.ContainsKey(bullet.NetworkObjectId))
         {
             bullet.Despawn(true);
         }
