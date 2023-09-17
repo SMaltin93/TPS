@@ -67,6 +67,8 @@ public class PlayerShoot : NetworkBehaviour
         if (IsServer && bullet != null && NetworkManager.Singleton.SpawnManager.SpawnedObjects.ContainsKey(bullet.NetworkObjectId))
         {
             bullet.Despawn(true);
+            // destroy the bullet after 2 seconds
+            Destroy(bullet.gameObject);
         }
     }
 
