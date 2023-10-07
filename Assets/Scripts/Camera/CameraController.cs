@@ -28,10 +28,15 @@ public class CameraController : NetworkBehaviour
     private AimState aimState;
 
 
+    private float scopedMouseSensitivity = 30f;
+    private float orginalMouseSensitivity;
+
+
     private void Awake()
     {
         playerCamera = GetComponent<Camera>();
         aimState = transform.parent.GetComponent<AimState>();
+        orginalMouseSensitivity  = mouseSensitivity;
     }
 
     private void Start()
@@ -82,13 +87,13 @@ public class CameraController : NetworkBehaviour
             float distance = Mathf.Sin(Time.timeSinceLevelLoad)/1000f;
             float distanceX = Mathf.Cos(Time.timeSinceLevelLoad)/1000f;
             transform.position = Vector3.Lerp(transform.position, ScopePosition.position + new Vector3(distanceX, distance, 0), Time.deltaTime * 10f);
-
+            mouseSensitivity = scopedMouseSensitivity;
         
         } else {
             //transform.localPosition = new Vector3(orginatxPos, offsetY , -1*(offsetZ + 2) ) ;
             transform.localPosition = new Vector3(orginalPos.x, offsetY , orginalPos.z ) ;
+            mouseSensitivity = orginalMouseSensitivity;
         }
-
     }
     
 

@@ -20,6 +20,8 @@ public class AimState : NetworkBehaviour
     [SerializeField] private Camera scopeCamera;
     [SerializeField] private Transform shootingPoint;
 
+    [SerializeField] private MultiAimConstraint bodyAimConstraint;
+
 
 
     private Vector2 ScreenCenterPoint;
@@ -33,7 +35,6 @@ public class AimState : NetworkBehaviour
     private const float minZoomDistance = 3f;
     private const float increaseSpeed = 3f;
 
-    private Animator anim;
    
 
 
@@ -94,6 +95,8 @@ public class AimState : NetworkBehaviour
         if (IsScopedNetVar.Value){
             
             scopeCamera.enabled = true;
+            bodyAimConstraint.weight = 0f;
+            // decrease the mouse sensitivity
             // use mouse scroll to zoom in and out 
             if (Input.GetAxis("Mouse ScrollWheel") > 0f )
             {
@@ -105,6 +108,7 @@ public class AimState : NetworkBehaviour
             }
         } else {
             scopeCamera.enabled = false;
+            bodyAimConstraint.weight = 1f;
         }
 
         if (Input.GetMouseButtonDown(1))
@@ -119,8 +123,6 @@ public class AimState : NetworkBehaviour
     public bool IsScoped() {
         return IsScopedNetVar.Value;
     }
-
-
-
+    
 
 }

@@ -48,6 +48,12 @@ public class PlayerState : NetworkBehaviour
 
 
     [SerializeField] private Rig constraintRig;
+
+    private PlayerDeath playerDeath;
+    private bool wait = false;
+
+
+    private Camera playerCamera;
     
 
     void Start()
@@ -75,6 +81,8 @@ public class PlayerState : NetworkBehaviour
         anim.SetBool("isGrabbed", false);
         aimState = GetComponent<AimState>();
         playerShoot = GetComponent<PlayerShoot>();
+        playerDeath = GetComponent<PlayerDeath>();
+        playerCamera = GetComponentInChildren<Camera>();
     }
 
 
@@ -93,10 +101,9 @@ public class PlayerState : NetworkBehaviour
             PickUpWeapon();
         }
 
-        if (isGrabbed )
+        if (isGrabbed)
         {
-            SetAnimRig.Value = 1;
-            IsWeaponActive.Value = true;
+           
             if (Aim)
             {
                 aimState.Aim(Sniper.gameObject);
@@ -105,7 +112,14 @@ public class PlayerState : NetworkBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 playerShoot.Shoot();
+                //aimState.recoil();
             }
+            StartCoroutine(WaitForAnimation());
+            if (wait) {
+                SetAnimRig.Value = 1;
+                IsWeaponActive.Value = true;
+            }
+            
           
         }
         Debug.DrawRay(rightHandHoldPosition.position, rightHandHoldPosition.up * 100f, Color.red);
@@ -123,14 +137,11 @@ public class PlayerState : NetworkBehaviour
              if (hit.transform.tag == "Weapon")
             {
                 Debug.Log("GrabbedWeapon: IS NULL");
-                isGrabbed = true;
-                StartCoroutine(WaitForAnimation());
                 anim.SetTrigger("pickUp");
-                anim.SetBool("isGrabbed", isGrabbed);
                 Aim = true;
-                // set the sniper to be active
-                IsWeaponActive.Value = true;
-
+                SetAnimRig.Value = 0;
+                isGrabbed = true;
+                anim.SetBool("isGrabbed", isGrabbed);
             } 
         }
     }
@@ -138,7 +149,8 @@ public class PlayerState : NetworkBehaviour
     IEnumerator WaitForAnimation()
     {
         yield return new WaitForSeconds(1f);
-        SetAnimRig.Value = 1;
+        wait = true;
+        //SetAnimRig.Value = 1;
     }
 
 }

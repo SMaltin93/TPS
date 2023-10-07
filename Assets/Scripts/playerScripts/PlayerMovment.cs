@@ -108,8 +108,6 @@ public class PlayerMovment :  NetworkBehaviour
         // set SpeedX and SpeedZ in the animator movex and movez smooth the transition between the animation
         // if the player is running in forward direction
 
-        Debug.Log("isWeaponed: " + isWeaponed);
-
         if (idle)
         {
             Idle();    
@@ -292,7 +290,7 @@ public class PlayerMovment :  NetworkBehaviour
 
     // start random position function
 
-    private Vector3 RandomPosition()
+    public Vector3 RandomPosition()
     {
         float x = Random.Range(-StartXBetween, StartXBetween);
         float y = Random.Range(0, 1);

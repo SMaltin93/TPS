@@ -43,7 +43,6 @@ public class NetworkUI : NetworkBehaviour
 
          NetworkManager.Singleton.OnServerStarted +=  () =>
         {
-            Debug.Log("Server started event fired");
             Invoke("SpawnItems", 0.5f);  // Delay of 0.5 seconds
         };
 
@@ -63,7 +62,7 @@ public class NetworkUI : NetworkBehaviour
         // quit the game by pressing the esc 3 seconds
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Invoke("QuitGame", 3f);
+            Invoke("QuitGame", 2f);
         }
     }
 
@@ -81,11 +80,11 @@ public class NetworkUI : NetworkBehaviour
         else if (playrtState == "client")
         {
             if (MenuManager.ipAdress == "") {
-                Debug.Log(" NetworkUI  client ip adress NULL : " + ClientIpAdress);
+                //Debug.Log(" NetworkUI  client ip adress NULL : " + ClientIpAdress);
                 StartTheGameAsClient();
             } else {
                 ClientIpAdress = MenuManager.ipAdress;
-                Debug.Log(" NetworkUI  client ip adress: " + ClientIpAdress);
+                //Debug.Log(" NetworkUI  client ip adress: " + ClientIpAdress);
                 StartTheGameAsClient();
             }
             
@@ -124,21 +123,11 @@ public class NetworkUI : NetworkBehaviour
     // restart the game by pressing the j key 3 seconds
     public void QuitGame() {
         Debug.Log("quit game");
+        this.GetComponent<NetworkObject>().Despawn(true);
         Application.Quit();
     }
 
     // dont crash the game when the player press escape
-
-   private void OnApplicationQuit()
-    {
-        if (NetworkManager.Singleton != null)
-        {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsClient)
-            {
-                NetworkManager.Shutdown();
-            }
-        }
-    }
 
 
 }
